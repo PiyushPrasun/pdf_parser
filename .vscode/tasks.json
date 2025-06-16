@@ -1,0 +1,12 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Set up and run PDF Parser",
+			"type": "shell",
+			"command": "pip install -r requirements.txt && echo 'PDF Parser is ready to use. Run with: python main.py <path_to_pdf_file>'",
+			"group": "build",
+			"problemMatcher": []
+		}
+	]
+}
