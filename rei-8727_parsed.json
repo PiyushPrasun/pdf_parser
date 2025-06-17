@@ -16,5 +16,792 @@
     "num_pages": 33
   },
   "num_chunks": 2,
-  "ocr_used": false
+  "ocr_used": false,
+  "tables": [
+    {
+      "table_id": 0,
+      "page": -1,
+      "data": [
+        {
+          "work will be like in tomorrow\u2019s world and the consequences of the adop-": "tion of artificial intelligence on employment. History shows us that tech-"
+        },
+        {
+          "work will be like in tomorrow\u2019s world and the consequences of the adop-": "nological advances have never led to abrupt changes leading to massive"
+        },
+        {
+          "work will be like in tomorrow\u2019s world and the consequences of the adop-": "destruction of jobs. On the contrary, their effects have been progressive"
+        },
+        {
+          "work will be like in tomorrow\u2019s world and the consequences of the adop-": "and have always resulted in the emergence of new forms of work. But are"
+        },
+        {
+          "work will be like in tomorrow\u2019s world and the consequences of the adop-": "we not confronted with an altogether new phenomenon? Artificial intel-"
+        },
+        {
+          "work will be like in tomorrow\u2019s world and the consequences of the adop-": "ligence may not only impact the volume of employment but also its con-"
+        },
+        {
+          "work will be like in tomorrow\u2019s world and the consequences of the adop-": "tent, as it is no longer a matter of automating tasks depending primarily"
+        }
+      ],
+      "headers": [
+        "work will be like in tomorrow\u2019s world and the consequences of the adop-"
+      ],
+      "rows": [
+        [
+          "tion of artificial intelligence on employment. History shows us that tech-"
+        ],
+        [
+          "nological advances have never led to abrupt changes leading to massive"
+        ],
+        [
+          "destruction of jobs. On the contrary, their effects have been progressive"
+        ],
+        [
+          "and have always resulted in the emergence of new forms of work. But are"
+        ],
+        [
+          "we not confronted with an altogether new phenomenon? Artificial intel-"
+        ],
+        [
+          "ligence may not only impact the volume of employment but also its con-"
+        ],
+        [
+          "tent, as it is no longer a matter of automating tasks depending primarily"
+        ]
+      ],
+      "shape": [
+        7,
+        1
+      ],
+      "accuracy": null,
+      "whitespace": null,
+      "extraction_method": "tabula"
+    },
+    {
+      "table_id": 1,
+      "page": -1,
+      "data": [
+        {
+          "nected with ethics and social acceptability, personal data protection, AI": "designers\u2019 and users\u2019 responsibility and transparency of human/machine"
+        },
+        {
+          "nected with ethics and social acceptability, personal data protection, AI": "interactions. This article does not seek to supply exact answers on what"
+        },
+        {
+          "nected with ethics and social acceptability, personal data protection, AI": "work will be like in tomorrow\u2019s world. Its main goal to examine how AI"
+        },
+        {
+          "nected with ethics and social acceptability, personal data protection, AI": "is being used today and, on that basis, to identify plausible possibilities"
+        },
+        {
+          "nected with ethics and social acceptability, personal data protection, AI": "for its future use in particular fields of application and selected sectors of"
+        },
+        {
+          "nected with ethics and social acceptability, personal data protection, AI": "activity. The sectoral approach is useful for identifying potential oppor-"
+        },
+        {
+          "nected with ethics and social acceptability, personal data protection, AI": "tunities and risks in detail, including task evolution, learning dynamics,"
+        },
+        {
+          "nected with ethics and social acceptability, personal data protection, AI": "increases in technical and social skills, changes in working conditions,"
+        },
+        {
+          "nected with ethics and social acceptability, personal data protection, AI": "managerial practices and gains in or loss of autonomy (Section 3). The arti-"
+        },
+        {
+          "nected with ethics and social acceptability, personal data protection, AI": "cle focuses on three sectors in which AI has already started to spread:"
+        },
+        {
+          "nected with ethics and social acceptability, personal data protection, AI": "health, retail banking and transport. They are also regarded as sectors"
+        },
+        {
+          "nected with ethics and social acceptability, personal data protection, AI": "with the potential for creating jobs and are therefore important focuses"
+        },
+        {
+          "nected with ethics and social acceptability, personal data protection, AI": "of public policies. Finally, once the risks and benefits of AI on work have"
+        },
+        {
+          "nected with ethics and social acceptability, personal data protection, AI": "been analyzed, the concluding section will consider what forms of work"
+        },
+        {
+          "nected with ethics and social acceptability, personal data protection, AI": "organisation are best adapted to promoting human-machine complemen-"
+        }
+      ],
+      "headers": [
+        "nected with ethics and social acceptability, personal data protection, AI"
+      ],
+      "rows": [
+        [
+          "designers\u2019 and users\u2019 responsibility and transparency of human/machine"
+        ],
+        [
+          "interactions. This article does not seek to supply exact answers on what"
+        ],
+        [
+          "work will be like in tomorrow\u2019s world. Its main goal to examine how AI"
+        ],
+        [
+          "is being used today and, on that basis, to identify plausible possibilities"
+        ],
+        [
+          "for its future use in particular fields of application and selected sectors of"
+        ],
+        [
+          "activity. The sectoral approach is useful for identifying potential oppor-"
+        ],
+        [
+          "tunities and risks in detail, including task evolution, learning dynamics,"
+        ],
+        [
+          "increases in technical and social skills, changes in working conditions,"
+        ],
+        [
+          "managerial practices and gains in or loss of autonomy (Section 3). The arti-"
+        ],
+        [
+          "cle focuses on three sectors in which AI has already started to spread:"
+        ],
+        [
+          "health, retail banking and transport. They are also regarded as sectors"
+        ],
+        [
+          "with the potential for creating jobs and are therefore important focuses"
+        ],
+        [
+          "of public policies. Finally, once the risks and benefits of AI on work have"
+        ],
+        [
+          "been analyzed, the concluding section will consider what forms of work"
+        ],
+        [
+          "organisation are best adapted to promoting human-machine complemen-"
+        ]
+      ],
+      "shape": [
+        15,
+        1
+      ],
+      "accuracy": null,
+      "whitespace": null,
+      "extraction_method": "tabula"
+    },
+    {
+      "table_id": 2,
+      "page": -1,
+      "data": [
+        {
+          "tem dedicated to the management/prevention of polypathologies with a": "very strong psychological and behavioural component. What the system"
+        },
+        {
+          "tem dedicated to the management/prevention of polypathologies with a": "will aim for will be long-term behavioural changes and this type of action"
+        },
+        {
+          "tem dedicated to the management/prevention of polypathologies with a": "requires close and \u201chuman\u201d interaction with patients (Alderwick et al.,"
+        },
+        {
+          "tem dedicated to the management/prevention of polypathologies with a": "2015). What AI could bring is a better management of patients and iden-"
+        },
+        {
+          "tem dedicated to the management/prevention of polypathologies with a": "tification of costs and adapted structures for global management (Malone"
+        },
+        {
+          "tem dedicated to the management/prevention of polypathologies with a": "et al., 2020). Let us take the example of Kayser Permanent Washington"
+        },
+        {
+          "tem dedicated to the management/prevention of polypathologies with a": "(2018) in the USA, recognized as an efficient health system in achieving"
+        },
+        {
+          "tem dedicated to the management/prevention of polypathologies with a": "the triple aim of assuring quality of patient care, improvements of the"
+        },
+        {
+          "tem dedicated to the management/prevention of polypathologies with a": "population\u2019s health and these at the lowest possible cost (Foley et al., 2015)."
+        },
+        {
+          "tem dedicated to the management/prevention of polypathologies with a": "These systems invest heavily in AI-based tools. But they also recruit a lot"
+        },
+        {
+          "tem dedicated to the management/prevention of polypathologies with a": "of doctors, nurses, orderlies and even social workers to improve the man-"
+        },
+        {
+          "tem dedicated to the management/prevention of polypathologies with a": "agement and prevention of complex pathologies, such as obesity or diabe-"
+        },
+        {
+          "tem dedicated to the management/prevention of polypathologies with a": "tes because these pathologies are of socio-economic origin. They are also"
+        },
+        {
+          "tem dedicated to the management/prevention of polypathologies with a": "developing local hospital structures within regions to be closer to patients"
+        },
+        {
+          "tem dedicated to the management/prevention of polypathologies with a": "in order to influence their behaviour and minimize unnecessary inter-"
+        },
+        {
+          "tem dedicated to the management/prevention of polypathologies with a": "ventions. So, it is likely that we will still have doctors and nurses\u2019 assis-"
+        }
+      ],
+      "headers": [
+        "tem dedicated to the management/prevention of polypathologies with a"
+      ],
+      "rows": [
+        [
+          "very strong psychological and behavioural component. What the system"
+        ],
+        [
+          "will aim for will be long-term behavioural changes and this type of action"
+        ],
+        [
+          "requires close and \u201chuman\u201d interaction with patients (Alderwick et al.,"
+        ],
+        [
+          "2015). What AI could bring is a better management of patients and iden-"
+        ],
+        [
+          "tification of costs and adapted structures for global management (Malone"
+        ],
+        [
+          "et al., 2020). Let us take the example of Kayser Permanent Washington"
+        ],
+        [
+          "(2018) in the USA, recognized as an efficient health system in achieving"
+        ],
+        [
+          "the triple aim of assuring quality of patient care, improvements of the"
+        ],
+        [
+          "population\u2019s health and these at the lowest possible cost (Foley et al., 2015)."
+        ],
+        [
+          "These systems invest heavily in AI-based tools. But they also recruit a lot"
+        ],
+        [
+          "of doctors, nurses, orderlies and even social workers to improve the man-"
+        ],
+        [
+          "agement and prevention of complex pathologies, such as obesity or diabe-"
+        ],
+        [
+          "tes because these pathologies are of socio-economic origin. They are also"
+        ],
+        [
+          "developing local hospital structures within regions to be closer to patients"
+        ],
+        [
+          "in order to influence their behaviour and minimize unnecessary inter-"
+        ],
+        [
+          "ventions. So, it is likely that we will still have doctors and nurses\u2019 assis-"
+        ]
+      ],
+      "shape": [
+        16,
+        1
+      ],
+      "accuracy": null,
+      "whitespace": null,
+      "extraction_method": "tabula"
+    },
+    {
+      "table_id": 3,
+      "page": -1,
+      "data": [
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "the capacity to process millions of items of up-to-date data, thus generat-"
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "ing gains in completeness, timeliness and the development of several pos-"
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "sible hypotheses for disease detection. The physician will then have better"
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "access to the information necessary for his decision-making including a"
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "complete histology of the patient providing access to the best therapeutic"
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "protocols based on evidence-based medicine."
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "If such \u201cintelligent\u201d expert systems gain the confidence of physicians and"
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "the general public, the impact on the physician\u2019s profession can be multi-"
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "faceted. Physicians will be able to benefit from assistance in the manage-"
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "ment of complex case diagnoses, with greater security in decision-making."
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "It will also lead to a strengthening of the doctor-patient relationship and"
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "dialogue in order to provide the information necessary to understand the"
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "diagnoses. The use of artificial intelligence will continuously increase the"
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "level of \u201ctechnical\u201d competence of the physician as he or she is able to fully"
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "exploit the most up-to-date clinical knowledge and medical practices. This"
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "could result in a cognitive enrichment of the physician\u2019s work, with less"
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "time spent interpreting \u201croutine\u201d data that intelligent systems can han-"
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "dle leaving the most complex expert cases to the physician. An increase in"
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "skills will be all the more necessary as the doctor will also need to be able"
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "to \u201cchallenge\u201d the software and to explain the diagnosis and therapeutic"
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "management responsibly."
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "These advantages, if they were to become widespread in the daily prac-"
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "tice of physicians, would make it possible to combine human intelligence"
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "and artificial intelligence in a complementary way in the service of better"
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "decision-making, combining speed of decision-making and better optimi-"
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "zation of patient care expenses. This is also the case in the field of surgery"
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "with Star (for Smart Tissue Autonomous Robot), a robot that does not com-"
+        },
+        {
+          "selves in several identified fields of application. One benefit is that AI has": "pletely replace specialized surgeons but provides them with a tool capa-"
+        }
+      ],
+      "headers": [
+        "selves in several identified fields of application. One benefit is that AI has"
+      ],
+      "rows": [
+        [
+          "the capacity to process millions of items of up-to-date data, thus generat-"
+        ],
+        [
+          "ing gains in completeness, timeliness and the development of several pos-"
+        ],
+        [
+          "sible hypotheses for disease detection. The physician will then have better"
+        ],
+        [
+          "access to the information necessary for his decision-making including a"
+        ],
+        [
+          "complete histology of the patient providing access to the best therapeutic"
+        ],
+        [
+          "protocols based on evidence-based medicine."
+        ],
+        [
+          "If such \u201cintelligent\u201d expert systems gain the confidence of physicians and"
+        ],
+        [
+          "the general public, the impact on the physician\u2019s profession can be multi-"
+        ],
+        [
+          "faceted. Physicians will be able to benefit from assistance in the manage-"
+        ],
+        [
+          "ment of complex case diagnoses, with greater security in decision-making."
+        ],
+        [
+          "It will also lead to a strengthening of the doctor-patient relationship and"
+        ],
+        [
+          "dialogue in order to provide the information necessary to understand the"
+        ],
+        [
+          "diagnoses. The use of artificial intelligence will continuously increase the"
+        ],
+        [
+          "level of \u201ctechnical\u201d competence of the physician as he or she is able to fully"
+        ],
+        [
+          "exploit the most up-to-date clinical knowledge and medical practices. This"
+        ],
+        [
+          "could result in a cognitive enrichment of the physician\u2019s work, with less"
+        ],
+        [
+          "time spent interpreting \u201croutine\u201d data that intelligent systems can han-"
+        ],
+        [
+          "dle leaving the most complex expert cases to the physician. An increase in"
+        ],
+        [
+          "skills will be all the more necessary as the doctor will also need to be able"
+        ],
+        [
+          "to \u201cchallenge\u201d the software and to explain the diagnosis and therapeutic"
+        ],
+        [
+          "management responsibly."
+        ],
+        [
+          "These advantages, if they were to become widespread in the daily prac-"
+        ],
+        [
+          "tice of physicians, would make it possible to combine human intelligence"
+        ],
+        [
+          "and artificial intelligence in a complementary way in the service of better"
+        ],
+        [
+          "decision-making, combining speed of decision-making and better optimi-"
+        ],
+        [
+          "zation of patient care expenses. This is also the case in the field of surgery"
+        ],
+        [
+          "with Star (for Smart Tissue Autonomous Robot), a robot that does not com-"
+        ],
+        [
+          "pletely replace specialized surgeons but provides them with a tool capa-"
+        ]
+      ],
+      "shape": [
+        28,
+        1
+      ],
+      "accuracy": null,
+      "whitespace": null,
+      "extraction_method": "tabula"
+    },
+    {
+      "table_id": 4,
+      "page": -1,
+      "data": [
+        {
+          "avoid a crisis, its resolution may still be speeded up by artificial intelli-": "gence. These days, crisis-scenario responses are standardised, with infor-"
+        },
+        {
+          "avoid a crisis, its resolution may still be speeded up by artificial intelli-": "mation processing and coordination of required action as the two main"
+        },
+        {
+          "avoid a crisis, its resolution may still be speeded up by artificial intelli-": "stumbling-blocks: two obstacles that AI can help remove. AI may well be"
+        },
+        {
+          "avoid a crisis, its resolution may still be speeded up by artificial intelli-": "able to bring more specific and appropriate responses to crises by taking"
+        },
+        {
+          "avoid a crisis, its resolution may still be speeded up by artificial intelli-": "more information into account. For example, in the event of a breakdown"
+        },
+        {
+          "avoid a crisis, its resolution may still be speeded up by artificial intelli-": "on a metro line it will be able to take into consideration the number of pas-"
+        },
+        {
+          "avoid a crisis, its resolution may still be speeded up by artificial intelli-": "sengers, which determine optimal speed for relieving congestion on the"
+        },
+        {
+          "avoid a crisis, its resolution may still be speeded up by artificial intelli-": "line, the availability of replacement trains and the workforce required to"
+        },
+        {
+          "avoid a crisis, its resolution may still be speeded up by artificial intelli-": "put them into service and the available alternative routes. Such optimisa-"
+        }
+      ],
+      "headers": [
+        "avoid a crisis, its resolution may still be speeded up by artificial intelli-"
+      ],
+      "rows": [
+        [
+          "gence. These days, crisis-scenario responses are standardised, with infor-"
+        ],
+        [
+          "mation processing and coordination of required action as the two main"
+        ],
+        [
+          "stumbling-blocks: two obstacles that AI can help remove. AI may well be"
+        ],
+        [
+          "able to bring more specific and appropriate responses to crises by taking"
+        ],
+        [
+          "more information into account. For example, in the event of a breakdown"
+        ],
+        [
+          "on a metro line it will be able to take into consideration the number of pas-"
+        ],
+        [
+          "sengers, which determine optimal speed for relieving congestion on the"
+        ],
+        [
+          "line, the availability of replacement trains and the workforce required to"
+        ],
+        [
+          "put them into service and the available alternative routes. Such optimisa-"
+        ]
+      ],
+      "shape": [
+        9,
+        1
+      ],
+      "accuracy": null,
+      "whitespace": null,
+      "extraction_method": "tabula"
+    },
+    {
+      "table_id": 5,
+      "page": -1,
+      "data": [
+        {
+          "tions oriented towards customer relations, back office operations, trading": "and wealth management applications, and applications oriented towards"
+        },
+        {
+          "tions oriented towards customer relations, back office operations, trading": "regulatory use. Thus, the strong presence of structured data and the dem-"
+        },
+        {
+          "tions oriented towards customer relations, back office operations, trading": "aterialised nature of the vast majority of transactions make the banking"
+        },
+        {
+          "tions oriented towards customer relations, back office operations, trading": "sector a fertile ground for the development of artificial intelligence solu-"
+        },
+        {
+          "tions oriented towards customer relations, back office operations, trading": "tions (DGE, 2019)."
+        },
+        {
+          "tions oriented towards customer relations, back office operations, trading": "With regard to customer relations, the most developed artificial intelli-"
+        },
+        {
+          "tions oriented towards customer relations, back office operations, trading": "gence applications are to be found in the field of credit risk rating. Banks"
+        },
+        {
+          "tions oriented towards customer relations, back office operations, trading": "have historically developed an ability to analyse the risk associated with"
+        },
+        {
+          "tions oriented towards customer relations, back office operations, trading": "any loan applicant using statistical models. These models are now enriched"
+        },
+        {
+          "tions oriented towards customer relations, back office operations, trading": "by additional data sources that may require artificial intelligence process-"
+        }
+      ],
+      "headers": [
+        "tions oriented towards customer relations, back office operations, trading"
+      ],
+      "rows": [
+        [
+          "and wealth management applications, and applications oriented towards"
+        ],
+        [
+          "regulatory use. Thus, the strong presence of structured data and the dem-"
+        ],
+        [
+          "aterialised nature of the vast majority of transactions make the banking"
+        ],
+        [
+          "sector a fertile ground for the development of artificial intelligence solu-"
+        ],
+        [
+          "tions (DGE, 2019)."
+        ],
+        [
+          "With regard to customer relations, the most developed artificial intelli-"
+        ],
+        [
+          "gence applications are to be found in the field of credit risk rating. Banks"
+        ],
+        [
+          "have historically developed an ability to analyse the risk associated with"
+        ],
+        [
+          "any loan applicant using statistical models. These models are now enriched"
+        ],
+        [
+          "by additional data sources that may require artificial intelligence process-"
+        ]
+      ],
+      "shape": [
+        10,
+        1
+      ],
+      "accuracy": null,
+      "whitespace": null,
+      "extraction_method": "tabula"
+    },
+    {
+      "table_id": 6,
+      "page": -1,
+      "data": [
+        {
+          "online banking platform, which is already the priority means of interac-": "tion between customers and their bank, will in fact free up time and facili-"
+        },
+        {
+          "online banking platform, which is already the priority means of interac-": "tate the work of these agents by filtering the number of requests. The bank"
+        },
+        {
+          "online banking platform, which is already the priority means of interac-": "could then choose to train these customer service agents to respond to"
+        },
+        {
+          "online banking platform, which is already the priority means of interac-": "requests that traditionally fall under the responsibility of the bank advi-"
+        },
+        {
+          "online banking platform, which is already the priority means of interac-": "sor. This development corresponds to the expectations of the customer,"
+        },
+        {
+          "online banking platform, which is already the priority means of interac-": "who increasingly sees his adviser not as the one who shares responsibil-"
+        },
+        {
+          "online banking platform, which is already the priority means of interac-": "ity for managing his portfolio, but as an assistant who must help him nav-"
+        }
+      ],
+      "headers": [
+        "online banking platform, which is already the priority means of interac-"
+      ],
+      "rows": [
+        [
+          "tion between customers and their bank, will in fact free up time and facili-"
+        ],
+        [
+          "tate the work of these agents by filtering the number of requests. The bank"
+        ],
+        [
+          "could then choose to train these customer service agents to respond to"
+        ],
+        [
+          "requests that traditionally fall under the responsibility of the bank advi-"
+        ],
+        [
+          "sor. This development corresponds to the expectations of the customer,"
+        ],
+        [
+          "who increasingly sees his adviser not as the one who shares responsibil-"
+        ],
+        [
+          "ity for managing his portfolio, but as an assistant who must help him nav-"
+        ]
+      ],
+      "shape": [
+        7,
+        1
+      ],
+      "accuracy": null,
+      "whitespace": null,
+      "extraction_method": "tabula"
+    },
+    {
+      "table_id": 7,
+      "page": -1,
+      "data": [
+        {
+          "groups specialising in customer relations, which have access to consider-": "able amounts of data as part of customer service operations on behalf of"
+        },
+        {
+          "groups specialising in customer relations, which have access to consider-": "third-party companies, will be led to set up a replacement offer managed"
+        },
+        {
+          "groups specialising in customer relations, which have access to consider-": "solely by a robot\u2014\u201cbot-shoring\u201d\u2014which could drastically reduce their"
+        },
+        {
+          "groups specialising in customer relations, which have access to consider-": "costs."
+        },
+        {
+          "groups specialising in customer relations, which have access to consider-": "The availability of AI technologies that facilitate the banking advisor\u2019s job"
+        },
+        {
+          "groups specialising in customer relations, which have access to consider-": "and reduce the volume of knowledge required by making them more avail-"
+        },
+        {
+          "groups specialising in customer relations, which have access to consider-": "able may also be an incentive for bank advisors to evolve towards greater"
+        },
+        {
+          "groups specialising in customer relations, which have access to consider-": "customer knowledge. Advisors could then take on more responsibility for"
+        },
+        {
+          "groups specialising in customer relations, which have access to consider-": "managing their clients, spending more time recommending investments"
+        },
+        {
+          "groups specialising in customer relations, which have access to consider-": "or sources of financing. In this scenario, social and decision-making skills"
+        },
+        {
+          "groups specialising in customer relations, which have access to consider-": "will be enhanced, and bank branches may be encouraged to focus on train-"
+        },
+        {
+          "groups specialising in customer relations, which have access to consider-": "ing in dialogue or negotiation skills."
+        },
+        {
+          "groups specialising in customer relations, which have access to consider-": "Depending on the choices made by companies in the sector, artificial intel-"
+        }
+      ],
+      "headers": [
+        "groups specialising in customer relations, which have access to consider-"
+      ],
+      "rows": [
+        [
+          "able amounts of data as part of customer service operations on behalf of"
+        ],
+        [
+          "third-party companies, will be led to set up a replacement offer managed"
+        ],
+        [
+          "solely by a robot\u2014\u201cbot-shoring\u201d\u2014which could drastically reduce their"
+        ],
+        [
+          "costs."
+        ],
+        [
+          "The availability of AI technologies that facilitate the banking advisor\u2019s job"
+        ],
+        [
+          "and reduce the volume of knowledge required by making them more avail-"
+        ],
+        [
+          "able may also be an incentive for bank advisors to evolve towards greater"
+        ],
+        [
+          "customer knowledge. Advisors could then take on more responsibility for"
+        ],
+        [
+          "managing their clients, spending more time recommending investments"
+        ],
+        [
+          "or sources of financing. In this scenario, social and decision-making skills"
+        ],
+        [
+          "will be enhanced, and bank branches may be encouraged to focus on train-"
+        ],
+        [
+          "ing in dialogue or negotiation skills."
+        ],
+        [
+          "Depending on the choices made by companies in the sector, artificial intel-"
+        ]
+      ],
+      "shape": [
+        13,
+        1
+      ],
+      "accuracy": null,
+      "whitespace": null,
+      "extraction_method": "tabula"
+    }
+  ],
+  "num_tables": 8,
+  "table_csv_paths": [
+    "./test_exports/rei-8727_table_1.csv",
+    "./test_exports/rei-8727_table_2.csv",
+    "./test_exports/rei-8727_table_3.csv",
+    "./test_exports/rei-8727_table_4.csv",
+    "./test_exports/rei-8727_table_5.csv",
+    "./test_exports/rei-8727_table_6.csv",
+    "./test_exports/rei-8727_table_7.csv",
+    "./test_exports/rei-8727_table_8.csv"
+  ]
 }

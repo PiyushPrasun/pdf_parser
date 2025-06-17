@@ -1,6 +1,6 @@
 # PDF Parser
 
-A custom PDF parser built with PyPDF and LangChain to extract and process text content from PDF files.
+A custom PDF parser built with PyPDF and LangChain to extract and process text content from PDF files. Now with a professional web interface!
 
 ## Features
 
@@ -8,7 +8,10 @@ A custom PDF parser built with PyPDF and LangChain to extract and process text c
 - Process large documents by breaking them into manageable chunks
 - Integrate with LangChain for enhanced document processing
 - OCR support for scanned documents and images using Tesseract
-- Command-line interface for easy usage
+- **Table detection and extraction from PDFs**
+- **Export tables to CSV files for data analysis**
+- Modern web interface for easy file uploads and processing
+- Command-line interface for automation and scripting
 
 ## Installation
 
@@ -31,9 +34,30 @@ A custom PDF parser built with PyPDF and LangChain to extract and process text c
 
 ## Usage
 
+### Web Interface
+
+The easiest way to use the PDF Parser is through the web interface:
+
+```bash
+# Start the web interface
+python main.py --web
+
+# Specify a custom port
+python main.py --web --port 8080
+```
+
+Once started, open your browser and navigate to `http://localhost:5000` (or your custom port).
+
+The web interface provides:
+- Drag and drop file uploads
+- Advanced configuration options
+- Visual results display with statistics
+- JSON viewer for examining extraction results
+- Download options for parsed data
+
 ### Command Line Interface
 
-The simplest way to use the parser is through the command-line interface:
+For automation or batch processing, use the command-line interface:
 
 ```bash
 # Basic usage
@@ -57,6 +81,18 @@ python main.py path/to/your/document.pdf --ocr
 # Force OCR on all pages (even if they have text)
 python main.py path/to/your/document.pdf --ocr --force-ocr
 
+# Extract tables from the PDF
+python main.py path/to/your/document.pdf --extract-tables
+
+# Extract tables and export to CSV
+python main.py path/to/your/document.pdf --extract-tables --export-csv
+
+# Use stream method for table extraction (for tables without clear borders)
+python main.py path/to/your/document.pdf --extract-tables --table-flavour stream
+
+# Specify a custom CSV output directory
+python main.py path/to/your/document.pdf --extract-tables --export-csv --csv-output-dir /path/to/output
+
 # Specify Tesseract path if not in system PATH
 python main.py path/to/your/document.pdf --ocr --tesseract-path /path/to/tesseract
 
@@ -71,11 +107,17 @@ You can also use the PDF parser in your Python code:
 ```python
 from src.pdf_parser import PDFParser
 
-# Initialize the parser (without OCR)
+# Initialize the parser (without OCR or table extraction)
 parser = PDFParser(chunk_size=1000, chunk_overlap=200)
 
 # Or initialize with OCR support
 parser = PDFParser(chunk_size=1000, chunk_overlap=200, use_ocr=True)
+
+# Or initialize with table extraction
+parser = PDFParser(chunk_size=1000, chunk_overlap=200, extract_tables=True)
+
+# Or initialize with both OCR and table extraction
+parser = PDFParser(chunk_size=1000, chunk_overlap=200, use_ocr=True, extract_tables=True, table_flavour='lattice')
 
 # Parse a PDF file
 result = parser.parse_pdf("path/to/your/document.pdf")
@@ -93,6 +135,14 @@ if "ocr_text" in result:
     ocr_text = result["ocr_text"]
     ocr_chunks = result["ocr_chunks"]
     ocr_by_page = result["ocr_by_page"]
+    
+# Access table data (if table extraction was used)
+if "tables" in result:
+    tables = result["tables"]
+    num_tables = result["num_tables"]
+    
+    # Export tables to CSV if needed
+    csv_paths = parser.save_tables_to_csv(tables, "output_directory", "base_filename")
 ```
 
 For LangChain integration:

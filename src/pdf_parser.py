@@ -23,13 +23,28 @@ try:
 except ImportError:
     OCR_AVAILABLE = False
 
+# Import table extractor - use try/except to handle cases where it's not installed
+try:
+    from src.table_extractor import TableExtractor
+    TABLE_EXTRACTION_AVAILABLE = True
+except ImportError:
+    TABLE_EXTRACTION_AVAILABLE = False
+
+# Import CSV exporter - use try/except to handle cases where it's not installed
+try:
+    from src.csv_exporter import CSVExporter
+    CSV_EXPORT_AVAILABLE = True
+except ImportError:
+    CSV_EXPORT_AVAILABLE = False
+
 class PDFParser:
     """
     A class for parsing PDF files and extracting structured content
     """
     
     def __init__(self, chunk_size: int = 1000, chunk_overlap: int = 200, 
-                 use_ocr: bool = False, tesseract_path: Optional[str] = None):
+                 use_ocr: bool = False, tesseract_path: Optional[str] = None,
+                 extract_tables: bool = False, table_flavour: str = 'lattice'):
         """
         Initialize the PDF parser
         
@@ -38,10 +53,13 @@ class PDFParser:
             chunk_overlap: Overlap between chunks to maintain context
             use_ocr: Whether to use OCR for text extraction from scanned documents
             tesseract_path: Path to Tesseract executable (if not in PATH)
+            extract_tables: Whether to extract tables from the PDF
+            table_flavour: Table extraction method ('lattice' or 'stream')
         """
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
         self.use_ocr = use_ocr
+        self.extract_tables = extract_tables
         
         # Initialize OCR processor if requested and available
         self.ocr_processor = None
@@ -54,6 +72,14 @@ class PDFParser:
             # Verify Tesseract is installed
             if not self.ocr_processor.is_tesseract_installed():
                 raise RuntimeError("Tesseract OCR is not installed or not found in PATH")
+        
+        # Initialize table extractor if requested
+        self.table_extractor = None
+        if extract_tables:
+            if not TABLE_EXTRACTION_AVAILABLE:
+                raise ImportError("Table extraction requested but table extraction module is not available. "
+                                 "Make sure camelot-py or tabula-py is installed.")
+            self.table_extractor = TableExtractor(flavour=table_flavour)
     
     def extract_text_from_pdf(self, pdf_path: str) -> str:
         """
@@ -194,16 +220,87 @@ class PDFParser:
         ocr_results = self.ocr_processor.ocr_pdf(pdf_path)
         return ocr_results
     
-    def parse_pdf(self, pdf_path: str, force_ocr: bool = False) -> Dict[str, Any]:
+    def extract_tables_from_pdf(self, pdf_path: str, pages: str = 'all') -> List[Dict[str, Any]]:
+        """
+        Extract tables from a PDF file
+        
+        Args:
+            pdf_path: Path to the PDF file
+            pages: Pages to extract tables from ('all' or page numbers e.g., '1,3-5')
+            
+        Returns:
+            List of dictionaries containing table data
+        """
+        if not self.extract_tables or not self.table_extractor:
+            raise ValueError("Table extraction is not enabled")
+            
+        if not os.path.exists(pdf_path):
+            raise FileNotFoundError(f"PDF file not found: {pdf_path}")
+        
+        return self.table_extractor.extract_tables(pdf_path, pages)
+    
+    def save_tables_to_csv(self, tables: List[Dict[str, Any]], output_dir: str, base_filename: str) -> List[str]:
+        """
+        Save extracted tables to CSV files
+        
+        Args:
+            tables: List of table dictionaries from extract_tables_from_pdf
+            output_dir: Directory to save CSV files
+            base_filename: Base filename for CSV files
+            
+        Returns:
+            List of paths to saved CSV files
+        """
+        if not self.extract_tables:
+            raise ValueError("Table extraction is not enabled")
+            
+        # Use the CSV Exporter if available (more robust)
+        if CSV_EXPORT_AVAILABLE:
+            return CSVExporter.export_tables_to_csv(tables, output_dir, base_filename)
+        elif self.table_extractor:
+            # Fallback to the table extractor's method
+            return self.table_extractor.save_tables_to_csv(tables, output_dir, base_filename)
+        else:
+            raise ValueError("No table extractor or CSV exporter available")
+    
+    def export_text_as_csv(self, text: str, output_dir: str, base_filename: str) -> str:
+        """
+        Export raw text as CSV, attempting to detect tabular structure
+        
+        Args:
+            text: Raw text to export
+            output_dir: Directory to save the CSV file
+            base_filename: Base filename for the CSV file
+            
+        Returns:
+            Path to the saved CSV file
+        """
+        if CSV_EXPORT_AVAILABLE:
+            return CSVExporter.export_text_as_csv(text, output_dir, base_filename)
+        else:
+            # Create a simple CSV if the CSV exporter is not available
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
+                
+            csv_path = os.path.join(output_dir, f"{base_filename}_text.csv")
+            with open(csv_path, 'w', newline='') as f:
+                f.write(text)
+                
+            return csv_path
+    
+    def parse_pdf(self, pdf_path: str, force_ocr: bool = False, 
+                 extract_tables: bool = None, output_dir: Optional[str] = None) -> Dict[str, Any]:
         """
         Parse a PDF file and return its content and metadata
         
         Args:
             pdf_path: Path to the PDF file
             force_ocr: Force OCR processing on all pages, even if they already have text
+            extract_tables: Override the class setting for table extraction
+            output_dir: Directory to save extracted tables as CSV files
             
         Returns:
-            Dictionary containing text content, chunks, and metadata
+            Dictionary containing text content, chunks, metadata, and tables if extracted
         """
         # Extract text - standard extraction with OCR fallback if enabled
         text = self.extract_text_from_pdf(pdf_path)
@@ -234,6 +331,44 @@ class PDFParser:
             except Exception as e:
                 result["ocr_error"] = str(e)
         
+        # Extract tables if requested
+        should_extract_tables = extract_tables if extract_tables is not None else self.extract_tables
+        
+        if should_extract_tables:
+            try:
+                tables = []
+                csv_paths = []
+                base_filename = os.path.splitext(os.path.basename(pdf_path))[0]
+                
+                # Try table extraction if available
+                if TABLE_EXTRACTION_AVAILABLE:
+                    # Ensure we have a table extractor
+                    if not self.table_extractor:
+                        self.table_extractor = TableExtractor()
+                    
+                    # Extract tables
+                    tables = self.table_extractor.extract_tables(pdf_path)
+                    result["tables"] = tables
+                    result["num_tables"] = len(tables)
+                    
+                    # Save tables to CSV if output directory is provided
+                    if output_dir and tables:
+                        csv_table_paths = self.save_tables_to_csv(tables, output_dir, base_filename)
+                        csv_paths.extend(csv_table_paths)
+                
+                # If no tables found or table extraction failed, try exporting text as CSV
+                if not tables and output_dir:
+                    # Export raw text as CSV
+                    text_csv_path = self.export_text_as_csv(text, output_dir, base_filename)
+                    csv_paths.append(text_csv_path)
+                    result["text_csv_path"] = text_csv_path
+                
+                if csv_paths:
+                    result["table_csv_paths"] = csv_paths
+                
+            except Exception as e:
+                result["table_extraction_error"] = str(e)
+        
         return result
 
 
@@ -247,6 +382,10 @@ if __name__ == "__main__":
     parser.add_argument("--ocr", action="store_true", help="Enable OCR for text extraction")
     parser.add_argument("--force-ocr", action="store_true", help="Force OCR on all pages")
     parser.add_argument("--tesseract-path", help="Path to Tesseract executable")
+    parser.add_argument("--extract-tables", action="store_true", help="Extract tables from PDF")
+    parser.add_argument("--table-flavour", choices=["lattice", "stream"], default="lattice", help="Table extraction method")
+    parser.add_argument("--export-csv", action="store_true", help="Export tables to CSV")
+    parser.add_argument("--output-dir", default=".", help="Directory to save files")
     
     args = parser.parse_args()
     
@@ -254,11 +393,17 @@ if __name__ == "__main__":
         # Initialize parser with OCR if requested
         pdf_parser = PDFParser(
             use_ocr=args.ocr,
-            tesseract_path=args.tesseract_path
+            tesseract_path=args.tesseract_path,
+            extract_tables=args.extract_tables,
+            table_flavour=args.table_flavour
         )
         
         # Parse the PDF
-        result = pdf_parser.parse_pdf(args.pdf_path, force_ocr=args.force_ocr)
+        result = pdf_parser.parse_pdf(
+            args.pdf_path, 
+            force_ocr=args.force_ocr,
+            output_dir=args.output_dir if args.export_csv else None
+        )
         
         # Display results
         print(f"\nPDF Parsing Results:")
@@ -268,6 +413,26 @@ if __name__ == "__main__":
         print(f"OCR Enabled: {result['ocr_used']}")
         print(f"Total text length: {len(result['text'])}")
         print(f"Number of chunks: {result['num_chunks']}")
+        
+        if 'tables' in result:
+            print(f"Tables extracted: {result['num_tables']}")
+            
+            if result['tables']:
+                print("\nTable details:")
+                for i, table in enumerate(result['tables']):
+                    page = table.get('page', 'unknown')
+                    shape = table.get('shape', (0, 0))
+                    accuracy = table.get('accuracy')
+                    method = table.get('extraction_method', 'unknown')
+                    
+                    print(f"  Table {i+1}: Page {page}, Rows x Cols: {shape[0]}x{shape[1]}, Method: {method}")
+                    if accuracy is not None:
+                        print(f"    Accuracy: {accuracy:.2f}%")
+            
+            if 'table_csv_paths' in result:
+                print("\nTables exported to CSV:")
+                for csv_path in result['table_csv_paths']:
+                    print(f"  {csv_path}")
         
         if result['text']:
             print(f"\nText Preview:")

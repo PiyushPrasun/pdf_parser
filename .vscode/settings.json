@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/f20b41f0-9ecb-4579-8955-2d5b4c70a90e/resourceGroups/appsvc_linux_eastus/providers/Microsoft.Web/sites/PDFPARSER",
+    "appService.deploySubpath": "."
+}

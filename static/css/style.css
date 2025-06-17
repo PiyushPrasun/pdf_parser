@@ -1,0 +1,133 @@
+/* Custom styles for PDF Parser application */
+
+/* General */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f7fb;
+    color: #333;
+}
+
+/* Cards */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    border-top-left-radius: 10px !important;
+    border-top-right-radius: 10px !important;
+    padding: 1rem;
+}
+
+/* Buttons */
+.btn {
+    border-radius: 6px;
+    padding: 0.5rem 1.25rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #3f6ad8;
+    border-color: #3f6ad8;
+}
+
+.btn-primary:hover {
+    background-color: #375bc8;
+    border-color: #375bc8;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(63, 106, 216, 0.3);
+}
+
+.btn-outline-primary {
+    color: #3f6ad8;
+    border-color: #3f6ad8;
+}
+
+.btn-outline-primary:hover {
+    background-color: #3f6ad8;
+    border-color: #3f6ad8;
+}
+
+.btn-lg {
+    padding: 0.75rem 1.5rem;
+}
+
+/* Navbar */
+.navbar-dark.bg-primary {
+    background: linear-gradient(135deg, #3a66db 0%, #2b4caa 100%) !important;
+}
+
+/* Upload Area */
+.upload-area {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.upload-area:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.upload-area.highlight {
+    border-color: #3f6ad8;
+    background-color: rgba(63, 106, 216, 0.05);
+}
+
+/* Feature List */
+.feature-list li {
+    position: relative;
+    padding-left: 2rem;
+    margin-bottom: 1rem;
+}
+
+.feature-list li i {
+    position: absolute;
+    left: 0;
+    top: 0.25rem;
+}
+
+/* Footer */
+footer {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Result page styles */
+.stat-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Processing overlay */
+#processingOverlay {
+    backdrop-filter: blur(3px);
+}
+
+.processing-content {
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.98); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(0.98); }
+}

@@ -66,6 +66,16 @@ def main():
     parser.add_argument("--tesseract-lang", default="eng",
                         help="Language for OCR (default: eng)")
     
+    # Table extraction arguments
+    parser.add_argument("--extract-tables", action="store_true",
+                        help="Extract tables from the PDF")
+    parser.add_argument("--table-flavour", choices=["lattice", "stream"], default="lattice",
+                        help="Table extraction method (default: lattice)")
+    parser.add_argument("--export-csv", action="store_true", 
+                        help="Export extracted tables to CSV files")
+    parser.add_argument("--csv-output-dir",
+                        help="Directory to save CSV files (default: same as output JSON)")
+    
     args = parser.parse_args()
     
     # Check if the PDF file exists
@@ -108,15 +118,27 @@ def main():
                 chunk_size=args.chunk_size, 
                 chunk_overlap=args.chunk_overlap,
                 use_ocr=args.ocr,
-                tesseract_path=args.tesseract_path
+                tesseract_path=args.tesseract_path,
+                extract_tables=args.extract_tables,
+                table_flavour=args.table_flavour
             )
             
+            # Setup CSV output directory
+            csv_output_dir = None
+            if args.export_csv:
+                csv_output_dir = args.csv_output_dir if args.csv_output_dir else os.path.dirname(args.output)
+                os.makedirs(csv_output_dir, exist_ok=True)
+                
             if args.metadata_only:
                 # Extract only metadata
                 result = {"metadata": parser.extract_metadata(args.pdf_path)}
             else:
-                # Full parsing with optional OCR
-                result = parser.parse_pdf(args.pdf_path, force_ocr=args.force_ocr)
+                # Full parsing with optional OCR and table extraction
+                result = parser.parse_pdf(
+                    pdf_path=args.pdf_path, 
+                    force_ocr=args.force_ocr,
+                    output_dir=csv_output_dir if args.export_csv else None
+                )
         
         # Display summary information
         print(f"\nPDF Parsing Results for {os.path.basename(args.pdf_path)}:")
@@ -143,6 +165,28 @@ def main():
                     print(f"OCR chunks: {len(result['ocr_chunks'])}")
                 if 'ocr_error' in result:
                     print(f"OCR error: {result['ocr_error']}")
+            
+            # Display table extraction information if available
+            if 'tables' in result:
+                num_tables = len(result['tables'])
+                print(f"Tables extracted: {num_tables}")
+                
+                if num_tables > 0:
+                    print("\nTable details:")
+                    for i, table in enumerate(result['tables']):
+                        page = table.get('page', 'unknown')
+                        shape = table.get('shape', (0, 0))
+                        accuracy = table.get('accuracy')
+                        method = table.get('extraction_method', 'unknown')
+                        
+                        print(f"  Table {i+1}: Page {page}, Rows x Cols: {shape[0]}x{shape[1]}, Method: {method}")
+                        if accuracy is not None:
+                            print(f"    Accuracy: {accuracy:.2f}%")
+                
+                if 'table_csv_paths' in result:
+                    print("\nTables exported to CSV:")
+                    for csv_path in result['table_csv_paths']:
+                        print(f"  {csv_path}")
         
         # Save results to JSON
         save_result_to_json(result, args.output)

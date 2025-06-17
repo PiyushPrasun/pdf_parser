@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+
+{% block title %}PDF Parsing Results{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <div class="d-flex justify-content-between align-items-center">                        <h2 class="mb-0">
+                        <i class="fas fa-check-circle me-2"></i>PDF Parsing Complete - CSV Available
+                    </h2>
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-light">
+                        <i class="fas fa-upload me-1"></i> Parse Another PDF
+                    </a>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="me-3">
+                                <i class="fas fa-file-pdf text-danger fa-3x"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0">{{ result.filename }}</h4>
+                                <p class="text-muted mb-0">Processed successfully</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Metadata</h5>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-bordered table-striped mb-0">
+                                    <tbody>
+                                        <tr>
+                                            <th>Title</th>
+                                            <td>{{ result.metadata.get('Title', 'Not available') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Author</th>
+                                            <td>{{ result.metadata.get('Author', 'Not available') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Pages</th>
+                                            <td>{{ result.metadata.get('num_pages', 'Not available') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Creation Date</th>
+                                            <td>{{ result.metadata.get('creation_date', 'Not available') }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Processing Results</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6 mb-3">
+                                        <div class="stat-card">
+                                            <h2 class="mb-1 text-primary">{{ result.text_length }}</h2>
+                                            <p class="mb-0">Characters Extracted</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <div class="stat-card">
+                                            <h2 class="mb-1 text-primary">{{ result.chunk_count }}</h2>
+                                            <p class="mb-0">Text Chunks</p>
+                                        </div>
+                                    </div>
+                                    {% if result.use_langchain %}
+                                    <div class="col-6 mb-3">
+                                        <div class="stat-card">
+                                            <h2 class="mb-1 text-primary">{{ result.langchain_chunk_count }}</h2>
+                                            <p class="mb-0">LangChain Chunks</p>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% if result.ocr_used %}
+                                    <div class="col-6 mb-3">
+                                        <div class="stat-card">
+                                            <h2 class="mb-1 text-primary">
+                                                <i class="fas fa-check-circle text-success"></i>
+                                            </h2>
+                                            <p class="mb-0">OCR Used</p>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if result.tables and result.tables|length > 0 %}
+                                    <div class="col-6 mb-3">
+                                        <div class="stat-card">
+                                            <h2 class="mb-1 text-primary">{{ result.tables|length }}</h2>
+                                            <p class="mb-0">Tables Extracted</p>
+                                        </div>
+                                    </div>
+                                    {% if result.csv_files %}
+                                    <div class="col-6 mb-3">
+                                        <div class="stat-card">
+                                            <h2 class="mb-1 text-primary">
+                                                <i class="fas fa-file-csv text-success"></i>
+                                            </h2>
+                                            <p class="mb-0">CSV Exports</p>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            {% if result.tables and result.tables|length > 0 %}
+                            <div class="card-header bg-light border-top">
+                                <h5 class="mb-0"><i class="fas fa-table me-2"></i>Extracted Tables</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="nav nav-tabs" id="tableTabs" role="tablist">
+                                    {% for table in result.tables %}
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link {% if loop.first %}active{% endif %}" 
+                                                id="table{{ loop.index }}-tab" 
+                                                data-bs-toggle="tab" 
+                                                data-bs-target="#table{{ loop.index }}" 
+                                                type="button" 
+                                                role="tab">Table {{ loop.index }}</button>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                                <div class="tab-content p-3 border border-top-0 rounded-bottom">
+                                    {% for table in result.tables %}
+                                    <div class="tab-pane fade {% if loop.first %}show active{% endif %}" 
+                                         id="table{{ loop.index }}" 
+                                         role="tabpanel">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <div>
+                                                <span class="badge bg-secondary">Page {{ table.page if table.page != -1 else 'Unknown' }}</span>
+                                                <span class="badge bg-info">{{ table.shape[0] }}x{{ table.shape[1] }}</span>
+                                                <span class="badge bg-primary">{{ table.extraction_method }}</span>
+                                                {% if table.accuracy %}
+                                                <span class="badge bg-success">{{ (table.accuracy * 100)|round(1) }}% accuracy</span>
+                                                {% endif %}
+                                            </div>
+                                            {% if csv_files and loop.index0 < csv_files|length %}
+                                            <a href="{{ url_for('download_file', filename=csv_files[loop.index0]) }}" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-download me-1"></i>Download CSV
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                        <div class="table-responsive">
+                                            {{ table.html|safe }}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            {% if main_csv %}
+                            <a href="{{ url_for('download_file', filename=main_csv) }}" class="btn btn-success btn-lg mb-3 pulse-animation">
+                                <i class="fas fa-file-csv me-2"></i>Download as CSV
+                            </a>
+                            {% endif %}
+                            
+                            <a href="{{ url_for('download_file', filename=result.json_path) }}" class="btn btn-primary">
+                                <i class="fas fa-download me-2"></i>Download JSON Results
+                            </a>
+                            
+                            {% if csv_files and csv_files|length > 0 and (not main_csv or csv_files|length > 1) %}
+                            <div class="dropdown mb-2">
+                                <button class="btn btn-outline-success dropdown-toggle w-100" type="button" id="csvDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-table me-2"></i>Additional CSV Files
+                                </button>
+                                <ul class="dropdown-menu w-100" aria-labelledby="csvDropdown">
+                                    {% for csv_file in csv_files %}
+                                    {% if csv_file != main_csv or csv_files|length == 1 %}
+                                    <li>
+                                        <a class="dropdown-item" href="{{ url_for('download_file', filename=csv_file) }}">
+                                            {% if 'table' in csv_file %}
+                                                Table {{ loop.index }} (CSV)
+                                            {% elif 'text' in csv_file %}
+                                                Text Data (CSV)
+                                            {% elif 'data' in csv_file %}
+                                                Complete Data (CSV)
+                                            {% else %}
+                                                CSV File {{ loop.index }}
+                                            {% endif %}
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                            <a href="{{ url_for('view_pdf', filename=result.pdf_path) }}" class="btn btn-outline-primary" target="_blank">
+                                <i class="fas fa-eye me-2"></i>View Original PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Preview Results</h5>
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="toggleJson">
+                                <i class="fas fa-code me-1"></i>Toggle JSON View
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="jsonPreview"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/jsoneditor@9.10.0/dist/jsoneditor.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fetch and display JSON data
+        fetch("{{ url_for('download_file', filename=result.json_path) }}")
+            .then(response => response.json())
+            .then(data => {
+                // Create JSON editor
+                const container = document.getElementById('jsonPreview');
+                const options = {
+                    mode: 'view',
+                    mainMenuBar: false,
+                    navigationBar: false,
+                    statusBar: false
+                };
+                const editor = new JSONEditor(container, options, data);
+                
+                // Toggle JSON view button
+                document.getElementById('toggleJson').addEventListener('click', function() {
+                    if (editor.getMode() === 'view') {
+                        editor.setMode('code');
+                        this.innerHTML = '<i class="fas fa-eye me-1"></i>Toggle Tree View';
+                    } else {
+                        editor.setMode('view');
+                        this.innerHTML = '<i class="fas fa-code me-1"></i>Toggle JSON View';
+                    }
+                });
+            })
+            .catch(error => {
+                document.getElementById('jsonPreview').innerHTML = 
+                    `<div class="alert alert-danger">Error loading JSON: ${error.message}</div>`;
+            });
+    });
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/jsoneditor@9.10.0/dist/jsoneditor.min.css" rel="stylesheet">
+<style>
+    .stat-card {
+        text-align: center;
+        padding: 0.75rem;
+        border-radius: 0.25rem;
+        background-color: #f8f9fa;
+    }
+    
+    #jsonPreview {
+        height: 400px;
+    }
+    
+    .pulse-animation {
+        animation: pulse-effect 2s infinite;
+        box-shadow: 0 0 0 rgba(40, 167, 69, 0.4);
+    }
+    
+    @keyframes pulse-effect {
+        0% {
+            box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+        }
+    }
+</style>
+{% endblock %}
