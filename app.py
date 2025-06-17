@@ -6,6 +6,8 @@ import os
 import uuid
 import json
 import csv
+import tempfile
+import shutil
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, send_from_directory, session
 from werkzeug.utils import secure_filename
 from src.pdf_parser import PDFParser
@@ -16,7 +18,33 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-for-session')
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max upload
+
+# Configure file-based session for handling large session data
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_FILE_DIR'] = os.path.join(tempfile.gettempdir(), 'flask_session')
+app.config['SESSION_PERMANENT'] = False
+
+# Create the session directory if it doesn't exist
+os.makedirs(app.config['SESSION_FILE_DIR'], exist_ok=True)
+
+# Enable larger session size
+try:
+    from flask_session import Session
+    Session(app)
+except ImportError:
+    print("Using default session storage. Install flask-session for better session handling.")
 app.config['ALLOWED_EXTENSIONS'] = {'pdf'}
+app.config['SESSION_FILE_DIR'] = os.path.join(tempfile.gettempdir(), 'flask_session_pdf_parser')
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_FILE_THRESHOLD'] = 100  # Number of sessions stored in memory
+app.config['SESSION_PERMANENT'] = False
+
+# Create session directory if it doesn't exist
+os.makedirs(app.config['SESSION_FILE_DIR'], exist_ok=True)
+
+# Setup Flask-Session
+from flask_session import Session
+Session(app)
 
 # Ensure upload directory exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -201,17 +229,23 @@ def upload_file():
 @app.route('/result')
 def result():
     """Display parsing results"""
-    if 'result' not in session:
+    try:
+        if 'result' not in session:
+            flash("No processing results found. Please upload a PDF file.", "warning")
+            return redirect(url_for('index'))
+        
+        # Get the result from session
+        result_data = session.get('result', {})
+        
+        # Make sure csv_files is available in the template
+        if 'csv_files' in result_data:
+            csv_files = result_data['csv_files']
+        else:
+            csv_files = []
+    except Exception as e:
+        print(f"Error retrieving session data: {str(e)}")
+        flash("An error occurred while retrieving results. Please try uploading again.", "error")
         return redirect(url_for('index'))
-    
-    # Get the result from session
-    result_data = session['result']
-    
-    # Make sure csv_files is available in the template
-    if 'csv_files' in result_data:
-        csv_files = result_data['csv_files']
-    else:
-        csv_files = []
     
     # Convert csv_files to just the filenames (not full paths) for the template
     # so they work with the download_file route
