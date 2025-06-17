@@ -1,0 +1,33 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE files
+.vscode/
+.idea/
+
+# Application specific
+uploads/*
+!uploads/.gitkeep
+exports/*
+!exports/.gitkeep
+test_exports/*
+!test_exports/.gitkeep
+
+# Environment variables
+.env
+.env.*
+
+# Logs
+*.log
