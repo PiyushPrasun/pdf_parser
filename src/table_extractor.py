@@ -48,6 +48,7 @@ class TableExtractor:
             line_scale: Line scale parameter for camelot, higher is more sensitive
             strip_text: String to strip from cell text
             edge_tol: Edge tolerance parameter for camelot
+            min_cell_confidence: Minimum confidence score for a cell to be considered valid
             min_cell_confidence: Minimum confidence for a cell to be considered valid
         """
         self.flavour = flavour

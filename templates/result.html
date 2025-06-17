@@ -4,8 +4,24 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-10">
-        <div class="card shadow">
+    <div class="col-md-10">                        <div class="d-grid gap-2">
+                            <!-- Download buttons row -->
+                            <div class="row mb-3">
+                                {% if main_csv %}
+                                <div class="col-md-6 mb-2">
+                                    <a href="{{ url_for('download_file', filename=main_csv) }}" class="btn btn-success btn-lg w-100 pulse-animation">
+                                        <i class="fas fa-file-csv me-2"></i>Download as CSV
+                                    </a>
+                                </div>
+                                {% endif %}
+                                
+                                <div class="col-md-{% if main_csv %}6{% else %}12{% endif %} mb-2">
+                                    <a href="{{ url_for('download_file', filename=result.json_path) }}" class="btn btn-primary btn-lg w-100">
+                                        <i class="fas fa-download me-2"></i>Download JSON Results
+                                    </a>
+                                </div>
+                            </div>
+                            iv class="card shadow">
             <div class="card-header bg-success text-white">
                 <div class="d-flex justify-content-between align-items-center">                        <h2 class="mb-0">
                         <i class="fas fa-check-circle me-2"></i>PDF Parsing Complete - CSV Available
@@ -166,15 +182,22 @@
                         </div>
                         
                         <div class="d-grid gap-2">
-                            {% if main_csv %}
-                            <a href="{{ url_for('download_file', filename=main_csv) }}" class="btn btn-success btn-lg mb-3 pulse-animation">
-                                <i class="fas fa-file-csv me-2"></i>Download as CSV
-                            </a>
-                            {% endif %}
-                            
-                            <a href="{{ url_for('download_file', filename=result.json_path) }}" class="btn btn-primary">
-                                <i class="fas fa-download me-2"></i>Download JSON Results
-                            </a>
+                            <!-- Download buttons row -->
+                            <div class="row mb-3">
+                                {% if main_csv %}
+                                <div class="col-md-6 mb-2">
+                                    <a href="{{ url_for('download_file', filename=main_csv) }}" class="btn btn-success btn-lg w-100 pulse-animation">
+                                        <i class="fas fa-file-csv me-2"></i>Download as CSV
+                                    </a>
+                                </div>
+                                {% endif %}
+                                
+                                <div class="col-md-{% if main_csv %}6{% else %}12{% endif %} mb-2">
+                                    <a href="{{ url_for('download_file', filename=result.json_path) }}" class="btn btn-primary btn-lg w-100">
+                                        <i class="fas fa-download me-2"></i>Download JSON Results
+                                    </a>
+                                </div>
+                            </div>
                             
                             {% if csv_files and csv_files|length > 0 and (not main_csv or csv_files|length > 1) %}
                             <div class="dropdown mb-2">
