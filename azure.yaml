@@ -1,0 +1,12 @@
+# Azure Developer CLI configuration for PDF Parser
+name: pdf-parser
+metadata:
+  template: pdf-parser@0.0.1-beta
+services:
+  web:
+    project: .
+    language: python
+    host: containerapp
+infra:
+  provider: bicep
+  path: infra
