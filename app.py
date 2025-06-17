@@ -72,6 +72,47 @@ def save_result_to_json(result, filename):
     
     return output_path
 
+def filter_tables_for_display(tables):
+    """Filter out low-quality tables for display
+    
+    Args:
+        tables: List of table dictionaries
+        
+    Returns:
+        Filtered list of tables
+    """
+    if not tables:
+        return []
+        
+    filtered = []
+    
+    for table in tables:
+        # Skip very small tables
+        rows = table.get('rows', [])
+        if len(rows) < 2 or (len(rows) > 0 and len(rows[0]) < 2):
+            continue
+            
+        # Skip tables with poor accuracy
+        accuracy = table.get('accuracy')
+        if accuracy is not None and accuracy < 0.3:  # 30% threshold
+            continue
+            
+        # Check for mostly empty cells
+        total_cells = 0
+        empty_cells = 0
+        for row in rows:
+            for cell in row:
+                total_cells += 1
+                if not cell or str(cell).strip() == '':
+                    empty_cells += 1
+                    
+        if total_cells > 0 and empty_cells / total_cells > 0.7:  # More than 70% empty
+            continue
+            
+        filtered.append(table)
+        
+    return filtered
+
 @app.route('/')
 def index():
     """Main page"""
@@ -155,7 +196,14 @@ def upload_file():
             else:
                 table_extractor = parser.table_extractor
                 
-            for table in result['tables']:
+            # Filter and process tables
+            filtered_tables = filter_tables_for_display(result['tables'])
+            
+            # Replace the tables in the result with filtered tables
+            result['tables'] = filtered_tables
+            
+            # Generate HTML for each table
+            for table in filtered_tables:
                 table['html'] = table_extractor.get_table_html(table)
                 
         # Get any table CSV paths if available

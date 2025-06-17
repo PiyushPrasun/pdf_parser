@@ -74,28 +74,24 @@ class TableExtractor:
     
     def extract_tables(self, pdf_path: str, pages: Optional[Union[str, List[int]]] = 'all') -> List[Dict]:
         """
-        Extract tables from a PDF file using multiple methods for maximum robustness
+        Extract tables from PDF
         
         Args:
             pdf_path: Path to the PDF file
-            pages: Pages to extract tables from ('all' or list of page numbers)
+            pages: Pages to extract tables from
             
         Returns:
             List of dictionaries with table data
         """
-        if not os.path.exists(pdf_path):
-            raise FileNotFoundError(f"PDF file not found: {pdf_path}")
-        
         tables = []
         
-        # Try with camelot first using lattice method
+        # Use camelot if available
         if CAMELOT_AVAILABLE:
             try:
-                # Try lattice method first (better for tables with borders)
+                # Try lattice mode first (for tables with borders)
                 lattice_tables = self._extract_with_camelot(pdf_path, pages, flavour='lattice')
                 
-                # Then try stream method (better for tables without borders)
-                stream_tables = []
+                # Try stream mode if no tables found (for tables without borders)
                 try:
                     stream_tables = self._extract_with_camelot(pdf_path, pages, flavour='stream')
                 except Exception as e:
@@ -104,10 +100,15 @@ class TableExtractor:
                 # Combine tables, preferring lattice when there's overlap
                 tables = self._merge_table_results(lattice_tables, stream_tables)
                 
+                # Filter out low-quality and tiny tables
+                tables = self._filter_tables_by_quality(tables)
+                
                 # If no tables found with Camelot, try Tabula
                 if not tables and TABULA_AVAILABLE:
                     try:
                         tables = self._extract_with_tabula(pdf_path, pages)
+                        # Filter tabula tables too
+                        tables = self._filter_tables_by_quality(tables)
                     except Exception as e:
                         print(f"Tabula extraction failed: {str(e)}")
             except Exception as e:
@@ -117,6 +118,8 @@ class TableExtractor:
                 if TABULA_AVAILABLE:
                     try:
                         tables = self._extract_with_tabula(pdf_path, pages)
+                        # Filter tabula tables too
+                        tables = self._filter_tables_by_quality(tables)
                     except Exception as e:
                         print(f"Tabula extraction failed: {str(e)}")
         
@@ -124,6 +127,8 @@ class TableExtractor:
         elif TABULA_AVAILABLE:
             try:
                 tables = self._extract_with_tabula(pdf_path, pages)
+                # Filter tabula tables too
+                tables = self._filter_tables_by_quality(tables)
             except Exception as e:
                 print(f"Tabula extraction failed: {str(e)}")
                 return []
@@ -303,6 +308,57 @@ class TableExtractor:
         
         return merged_tables
     
+    def _filter_tables_by_quality(self, tables: List[Dict]) -> List[Dict]:
+        """
+        Filter tables by quality metrics to remove useless tables
+        
+        Args:
+            tables: List of extracted tables
+            
+        Returns:
+            Filtered list of tables
+        """
+        if not tables:
+            return []
+            
+        filtered_tables = []
+        
+        for table in tables:
+            # Get table dimensions
+            rows = len(table.get('rows', []))
+            cols = table['shape'][1] if 'shape' in table else 0
+            
+            # Skip tiny tables (less than 2x2)
+            if rows < 3 or cols < 2:
+                print(f"Skipping tiny table: {rows}x{cols}")
+                continue
+                
+            # Skip tables with very low accuracy
+            accuracy = table.get('accuracy')
+            if accuracy is not None and accuracy < 0.3:  # 30% accuracy threshold
+                print(f"Skipping low accuracy table: {accuracy}")
+                continue
+                
+            # Skip tables that are mostly empty cells
+            if 'rows' in table:
+                empty_cells = 0
+                total_cells = 0
+                
+                for row in table['rows']:
+                    for cell in row:
+                        total_cells += 1
+                        if not cell or str(cell).strip() == '':
+                            empty_cells += 1
+                            
+                if total_cells > 0 and empty_cells / total_cells > 0.7:  # More than 70% empty
+                    print(f"Skipping mostly empty table: {empty_cells}/{total_cells} empty cells")
+                    continue
+            
+            # This table passes quality checks
+            filtered_tables.append(table)
+            
+        return filtered_tables
+    
     def save_tables_to_csv(self, tables: List[Dict], output_dir: str, base_filename: str) -> List[str]:
         """
         Save extracted tables to CSV files
@@ -348,14 +404,15 @@ class TableExtractor:
         Returns:
             HTML representation of the table
         """
-        html = ['<table class="table table-bordered table-hover">']
+        html = ['<table class="table table-bordered table-hover table-striped">']
         
         # Headers
         headers = table.get('headers', [])
         if headers:
-            html.append('<thead><tr>')
+            html.append('<thead class="table-light"><tr>')
             for header in headers:
-                html.append(f'<th>{header}</th>')
+                header_text = str(header).strip()
+                html.append(f'<th class="text-center">{header_text}</th>')
             html.append('</tr></thead>')
         
         # Body
@@ -365,7 +422,13 @@ class TableExtractor:
             for row in rows:
                 html.append('<tr>')
                 for cell in row:
-                    html.append(f'<td>{cell}</td>')
+                    cell_text = str(cell).strip()
+                    # Try to detect if it's numeric for right alignment
+                    try:
+                        float(cell_text.replace(',', ''))
+                        html.append(f'<td class="text-end">{cell_text}</td>')
+                    except (ValueError, TypeError):
+                        html.append(f'<td>{cell_text}</td>')
                 html.append('</tr>')
             html.append('</tbody>')
         

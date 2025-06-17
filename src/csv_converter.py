@@ -40,49 +40,52 @@ class CSVConverter:
         
         # First try to extract tables if they exist
         if 'tables' in pdf_data and pdf_data['tables']:
-            # Combine all tables into one large table
-            combined_data = []
-            headers = []
+            # Each table will be converted to its own DataFrame
+            data_frames = []
             
             for table in pdf_data['tables']:
-                # Add a separator row
-                if combined_data:
-                    combined_data.append(['---NEW TABLE---'] * 10)
-                
-                # Get table rows
+                # Skip very small tables that may be just noise
                 rows = table.get('rows', [])
+                if len(rows) < 2 or (len(rows) > 0 and len(rows[0]) < 2):
+                    continue
                 
-                # Try to extract headers - use first row or table headers if available
+                # Try to extract headers
                 table_headers = table.get('headers', [])
                 if not table_headers and rows:
                     table_headers = rows[0]
                     rows = rows[1:]
                     
-                # Add headers to our headers list for tracking all column names
-                for h in table_headers:
-                    if h and h not in headers:
-                        headers.append(h)
-                        
-                # Add rows to combined data
-                combined_data.extend(rows)
-            
-            # Create DataFrame with all headers
-            if combined_data:
-                # Make sure we have column headers
-                if not headers:
-                    headers = [f"Column_{i+1}" for i in range(max(len(row) for row in combined_data))]
+                # Make sure we have valid headers
+                if not table_headers:
+                    table_headers = [f"Column_{i+1}" for i in range(max(len(row) for row in rows))]
+                    
+                # Create a DataFrame for this table
+                df = pd.DataFrame(rows)
                 
-                # Make sure each row has the right number of columns
-                max_cols = len(headers)
-                for i in range(len(combined_data)):
-                    if len(combined_data[i]) < max_cols:
-                        combined_data[i].extend([''] * (max_cols - len(combined_data[i])))
-                    elif len(combined_data[i]) > max_cols:
-                        combined_data[i] = combined_data[i][:max_cols]
-                        
-                # Create DataFrame and write to CSV
-                df = pd.DataFrame(combined_data, columns=headers)
-                df.to_csv(csv_path, index=False)
+                # Only add tables that have actual data
+                if not df.empty and df.size > 4:  # More than just a 2x2 table
+                    # Set the column names
+                    if len(df.columns) == len(table_headers):
+                        df.columns = table_headers
+                    else:
+                        # Adjust headers if lengths don't match
+                        df.columns = table_headers[:len(df.columns)] if len(table_headers) > len(df.columns) else (
+                            table_headers + [f"Column_{i+1}" for i in range(len(df.columns) - len(table_headers))]
+                        )
+                    
+                    # Clean the data - replace NaN with empty string
+                    df = df.fillna('')
+                    
+                    # Add to our list of DataFrames
+                    data_frames.append(df)
+            
+            # If we have DataFrames, combine them into one
+            if data_frames:
+                # Choose the best DataFrame (the one with the most cells) as the primary one
+                best_df = max(data_frames, key=lambda df: df.size)
+                
+                # Write to CSV
+                best_df.to_csv(csv_path, index=False)
                 return csv_path
         
         # If no tables were found, try to convert the raw text to a table format
