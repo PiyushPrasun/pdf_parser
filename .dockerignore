@@ -3,7 +3,6 @@
 README.md
 Dockerfile
 .dockerignore
-.azure
 .venv
 __pycache__
 *.pyc

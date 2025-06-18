@@ -1,5 +1,5 @@
 """
-Entry point for Azure App Service
+Entry point for the PDF Parser application
 """
 from app import app
 
