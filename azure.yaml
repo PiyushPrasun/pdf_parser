@@ -1,0 +1,53 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: pdf-parser
+metadata:
+  template: pdf-parser-app@0.0.1-beta
+  description: PDF Parser application with table extraction capabilities
+
+services:
+  pdf-parser-app:
+    project: .
+    language: py
+    host: containerapp
+
+infra:
+  provider: bicep
+  path: infra
+
+hooks:
+  prepackage:
+    shell: sh
+    run: |
+      echo "Building PDF Parser application..."
+      echo "Installing dependencies..."
+      pip install -r requirements.txt
+
+pipeline:
+  provider: github
+
+# Environment variables for the application
+variables:
+  SECRET_KEY:
+    type: string
+    description: "Flask secret key for session management"
+  UPLOAD_FOLDER:
+    type: string
+    default: "/tmp/uploads"
+    description: "Directory for uploaded files"
+  MAX_CONTENT_LENGTH:
+    type: string
+    default: "16777216"
+    description: "Maximum file upload size in bytes (16MB)"
+  SESSION_TYPE:
+    type: string
+    default: "filesystem"
+    description: "Session storage type"
+  SESSION_FILE_DIR:
+    type: string
+    default: "/tmp/sessions"
+    description: "Directory for session files"
+  SESSION_PERMANENT:
+    type: string
+    default: "false"
+    description: "Whether sessions are permanent"

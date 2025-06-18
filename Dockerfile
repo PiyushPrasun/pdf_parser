@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
     tesseract-ocr \
     tesseract-ocr-eng \
     build-essential \
+    default-jdk \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first to leverage Docker cache
@@ -31,9 +32,11 @@ RUN mkdir -p uploads exports notebook_exports
 ENV PYTHONPATH=/app
 ENV PORT=5000
 ENV SECRET_KEY=default-secret-key
+ENV JAVA_HOME=/usr/lib/jvm/default-java
+ENV PATH=$PATH:$JAVA_HOME/bin
 
 # Expose port
 EXPOSE 5000
 
-# Start command
-CMD ["python", "-m", "gunicorn", "--bind", "0.0.0.0:5000", "--timeout", "600", "app:app"]
+# Start command - use main.py as entry point for web interface
+CMD ["python", "main.py", "--web"]

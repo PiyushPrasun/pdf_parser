@@ -27,7 +27,9 @@ def main():
         try:
             from app import app
             print(f"Starting web interface at http://{args.host}:{args.port}")
-            app.run(debug=True, host=args.host, port=args.port)
+            # Use environment variables for production configuration
+            debug_mode = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+            app.run(debug=debug_mode, host=args.host, port=args.port)
         except ImportError as e:
             print(f"Error starting web interface: {str(e)}")
             print("Please ensure Flask is installed by running: pip install flask")
