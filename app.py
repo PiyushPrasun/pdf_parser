@@ -87,31 +87,67 @@ def filter_tables_for_display(tables):
     filtered = []
     
     for table in tables:
-        # Skip very small tables
+        # Get basic metrics
+        shape = table.get('shape', (0, 0))
         rows = table.get('rows', [])
-        if len(rows) < 2 or (len(rows) > 0 and len(rows[0]) < 2):
+        accuracy = table.get('accuracy', 1.0)
+        
+        # Must have reasonable dimensions (at least 2x2)
+        if shape[0] < 2 or shape[1] < 2:
             continue
             
-        # Skip tables with poor accuracy
-        accuracy = table.get('accuracy')
-        if accuracy is not None and accuracy < 0.3:  # 30% threshold
+        # Must have adequate accuracy
+        if accuracy is not None and accuracy < 0.4:
             continue
             
-        # Check for mostly empty cells
+        # Must have actual data
+        if not rows or len(rows) < 2:
+            continue
+            
+        # Check for content quality
+        non_empty_cells = 0
         total_cells = 0
-        empty_cells = 0
+        unique_content = set()
+        
         for row in rows:
             for cell in row:
                 total_cells += 1
-                if not cell or str(cell).strip() == '':
-                    empty_cells += 1
-                    
-        if total_cells > 0 and empty_cells / total_cells > 0.7:  # More than 70% empty
+                cell_str = str(cell).strip() if cell else ""
+                if cell_str:
+                    non_empty_cells += 1
+                    unique_content.add(cell_str.lower())
+        
+        # Must have sufficient non-empty content (at least 40%)
+        if total_cells == 0 or non_empty_cells / total_cells < 0.4:
+            continue
+            
+        # Must have reasonable content diversity (at least 4 unique values)
+        if len(unique_content) < 4:
+            continue
+            
+        # Check that we don't have tables that are just repeated headers
+        header_like_rows = 0
+        for row in rows:
+            row_content = [str(cell).strip().lower() for cell in row if str(cell).strip()]
+            if any(word in content for content in row_content 
+                   for word in ['column', 'header', 'title', 'name', 'field', 'table']):
+                header_like_rows += 1
+        
+        # Skip if more than half the rows look like headers/metadata
+        if header_like_rows > len(rows) / 2:
             continue
             
         filtered.append(table)
-        
-    return filtered
+    
+    # Sort by quality metrics (accuracy and content richness)
+    filtered.sort(key=lambda t: (
+        t.get('accuracy', 0), 
+        t.get('shape', (0, 0))[0] * t.get('shape', (0, 0))[1],
+        len(set(str(cell).strip().lower() for row in t.get('rows', []) for cell in row if str(cell).strip()))
+    ), reverse=True)
+    
+    # Limit to top 3 tables to avoid UI clutter
+    return filtered[:3]
 
 @app.route('/')
 def index():

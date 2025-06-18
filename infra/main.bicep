@@ -20,7 +20,7 @@ var tags = {
 
 // Container Apps Environment
 resource containerAppEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' = {
-  name: 'cae-${environmentName}-${resourceToken}'
+  name: 'caepdfparser${resourceToken}'
   location: location
   tags: tags
   properties: {
@@ -35,8 +35,8 @@ resource containerAppEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' 
 }
 
 // Log Analytics Workspace
-resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
-  name: 'log-${environmentName}-${resourceToken}'
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
+  name: 'logpdfparser${resourceToken}'
   location: location
   tags: tags
   properties: {
@@ -49,7 +49,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10
 
 // User Assigned Managed Identity
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: 'mi-${environmentName}-${resourceToken}'
+  name: 'mipdfparser${resourceToken}'
   location: location
   tags: tags
 }
@@ -80,7 +80,7 @@ resource acrPullRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-
 
 // Container App for PDF Parser
 resource pdfParserApp 'Microsoft.App/containerApps@2024-03-01' = {
-  name: 'ca-${environmentName}-${resourceToken}'
+  name: 'capdfparser${resourceToken}'
   location: location
   tags: union(tags, {
     'azd-service-name': 'web'

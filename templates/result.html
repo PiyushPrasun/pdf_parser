@@ -135,9 +135,38 @@
                             
                             {% if result.tables and result.tables|length > 0 %}
                             <div class="card-header bg-light border-top">
-                                <h5 class="mb-0"><i class="fas fa-table me-2"></i>Extracted Tables</h5>
+                                <h5 class="mb-0">
+                                    <i class="fas fa-table me-2"></i>Extracted Tables 
+                                    <span class="badge bg-primary">{{ result.tables|length }} found</span>
+                                </h5>
                             </div>
                             <div class="card-body">
+                                {% if result.tables|length == 1 %}
+                                <!-- Single table - display directly -->
+                                <div class="mb-3">
+                                    {% set table = result.tables[0] %}
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <span class="badge bg-secondary">Page {{ table.page if table.page != -1 else 'Unknown' }}</span>
+                                            <span class="badge bg-info">{{ table.shape[0] }} rows × {{ table.shape[1] }} cols</span>
+                                            <span class="badge bg-primary">{{ table.extraction_method }}</span>
+                                            {% if table.accuracy %}
+                                            <span class="badge bg-success">{{ (table.accuracy * 100)|round(1) }}% accuracy</span>
+                                            {% endif %}
+                                        </div>
+                                        {% if csv_files and csv_files|length > 0 %}
+                                        <a href="{{ url_for('download_file', filename=csv_files[0]) }}" 
+                                           class="btn btn-sm btn-outline-success">
+                                            <i class="fas fa-download me-1"></i>Download CSV
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                    <div class="table-container">
+                                        {{ table.html|safe }}
+                                    </div>
+                                </div>
+                                {% else %}
+                                <!-- Multiple tables - use tabs -->
                                 <ul class="nav nav-tabs" id="tableTabs" role="tablist">
                                     {% for table in result.tables %}
                                     <li class="nav-item" role="presentation">
@@ -146,19 +175,22 @@
                                                 data-bs-toggle="tab" 
                                                 data-bs-target="#table{{ loop.index }}" 
                                                 type="button" 
-                                                role="tab">Table {{ loop.index }}</button>
+                                                role="tab">
+                                            Table {{ loop.index }}
+                                            <span class="badge bg-light text-dark ms-1">{{ table.shape[0] }}×{{ table.shape[1] }}</span>
+                                        </button>
                                     </li>
                                     {% endfor %}
                                 </ul>
-                                <div class="tab-content p-3 border border-top-0 rounded-bottom">
+                                <div class="tab-content border border-top-0 rounded-bottom">
                                     {% for table in result.tables %}
-                                    <div class="tab-pane fade {% if loop.first %}show active{% endif %}" 
+                                    <div class="tab-pane fade {% if loop.first %}show active{% endif %} p-3" 
                                          id="table{{ loop.index }}" 
                                          role="tabpanel">
-                                        <div class="d-flex justify-content-between mb-2">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
                                             <div>
                                                 <span class="badge bg-secondary">Page {{ table.page if table.page != -1 else 'Unknown' }}</span>
-                                                <span class="badge bg-info">{{ table.shape[0] }}x{{ table.shape[1] }}</span>
+                                                <span class="badge bg-info">{{ table.shape[0] }} rows × {{ table.shape[1] }} cols</span>
                                                 <span class="badge bg-primary">{{ table.extraction_method }}</span>
                                                 {% if table.accuracy %}
                                                 <span class="badge bg-success">{{ (table.accuracy * 100)|round(1) }}% accuracy</span>
@@ -166,17 +198,18 @@
                                             </div>
                                             {% if csv_files and loop.index0 < csv_files|length %}
                                             <a href="{{ url_for('download_file', filename=csv_files[loop.index0]) }}" 
-                                               class="btn btn-sm btn-outline-primary">
+                                               class="btn btn-sm btn-outline-success">
                                                 <i class="fas fa-download me-1"></i>Download CSV
                                             </a>
                                             {% endif %}
                                         </div>
-                                        <div class="table-responsive">
+                                        <div class="table-container">
                                             {{ table.html|safe }}
                                         </div>
                                     </div>
                                     {% endfor %}
                                 </div>
+                                {% endif %}
                             </div>
                             {% endif %}
                         </div>
@@ -187,7 +220,7 @@
                                 <div class="col-md-6 mb-2">
                                     {% if main_csv %}
                                     <a href="{{ url_for('download_file', filename=main_csv) }}" class="btn btn-success btn-lg w-100 pulse-animation">
-                                        <i class="fas fa-file-csv me-2"></i>Download as CSV
+                                        <i class="fas fa-file-csv me-2"></i>Download Main CSV
                                     </a>
                                     {% else %}
                                     <button class="btn btn-secondary btn-lg w-100" disabled>
@@ -203,24 +236,24 @@
                                 </div>
                             </div>
                             
-                            {% if csv_files and csv_files|length > 0 and (not main_csv or csv_files|length > 1) %}
+                            <!-- Additional files dropdown - only show if there are multiple CSV files -->
+                            {% if csv_files and csv_files|length > 1 %}
                             <div class="dropdown mb-2">
                                 <button class="btn btn-outline-success dropdown-toggle w-100" type="button" id="csvDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-table me-2"></i>Additional CSV Files
+                                    <i class="fas fa-table me-2"></i>Additional Table Files ({{ csv_files|length - 1 }})
                                 </button>
                                 <ul class="dropdown-menu w-100" aria-labelledby="csvDropdown">
                                     {% for csv_file in csv_files %}
-                                    {% if csv_file != main_csv or csv_files|length == 1 %}
+                                    {% if csv_file != main_csv %}
                                     <li>
                                         <a class="dropdown-item" href="{{ url_for('download_file', filename=csv_file) }}">
+                                            <i class="fas fa-table me-2"></i>
                                             {% if 'table' in csv_file %}
-                                                Table {{ loop.index }} (CSV)
+                                                Individual Table {{ loop.index }}
                                             {% elif 'text' in csv_file %}
-                                                Text Data (CSV)
-                                            {% elif 'data' in csv_file %}
-                                                Complete Data (CSV)
+                                                Text Data Export
                                             {% else %}
-                                                CSV File {{ loop.index }}
+                                                Data File {{ loop.index }}
                                             {% endif %}
                                         </a>
                                     </li>
@@ -229,6 +262,7 @@
                                 </ul>
                             </div>
                             {% endif %}
+                            
                             <a href="{{ url_for('view_pdf', filename=result.pdf_path) }}" class="btn btn-outline-primary" target="_blank">
                                 <i class="fas fa-eye me-2"></i>View Original PDF
                             </a>
@@ -320,6 +354,86 @@
         }
         100% {
             box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+        }
+    }
+    
+    /* Enhanced table styling */
+    .table-container {
+        max-height: 500px;
+        overflow-y: auto;
+        border-radius: 0.375rem;
+        border: 1px solid #dee2e6;
+    }
+    
+    .table-container .table {
+        margin-bottom: 0;
+        font-size: 0.875rem;
+    }
+    
+    .table-container .table th {
+        position: sticky;
+        top: 0;
+        background-color: #212529 !important;
+        color: white !important;
+        font-weight: 600;
+        border: none !important;
+        padding: 0.75rem 0.5rem;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .table-container .table td {
+        padding: 0.5rem;
+        vertical-align: middle;
+        border-color: #dee2e6;
+        transition: background-color 0.15s ease-in-out;
+    }
+    
+    .table-container .table tr:hover td {
+        background-color: #f8f9fa !important;
+    }
+    
+    .table-container .table-striped > tbody > tr:nth-of-type(odd) > td {
+        background-color: rgba(0, 0, 0, 0.025);
+    }
+    
+    /* Improved badge styling */
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.375rem 0.5rem;
+    }
+    
+    /* Tab styling improvements */
+    .nav-tabs .nav-link {
+        border: 1px solid transparent;
+        border-top-left-radius: 0.375rem;
+        border-top-right-radius: 0.375rem;
+        color: #495057;
+        font-weight: 500;
+    }
+    
+    .nav-tabs .nav-link:hover {
+        border-color: #e9ecef #e9ecef #dee2e6;
+        color: #0d6efd;
+    }
+    
+    .nav-tabs .nav-link.active {
+        color: #0d6efd;
+        background-color: #fff;
+        border-color: #dee2e6 #dee2e6 #fff;
+        font-weight: 600;
+    }
+    
+    /* Responsive table improvements */
+    @media (max-width: 768px) {
+        .table-container {
+            font-size: 0.75rem;
+        }
+        
+        .table-container .table th,
+        .table-container .table td {
+            padding: 0.375rem 0.25rem;
         }
     }
 </style>

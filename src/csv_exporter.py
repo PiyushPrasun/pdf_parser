@@ -17,7 +17,7 @@ class CSVExporter:
     @staticmethod
     def export_tables_to_csv(tables: List[Dict], output_dir: str, base_filename: str) -> List[str]:
         """
-        Save extracted tables to CSV files
+        Save extracted tables to CSV files with improved formatting
         
         Args:
             tables: List of table dictionaries from table extractor
@@ -31,35 +31,83 @@ class CSVExporter:
             os.makedirs(output_dir)
         
         csv_paths = []
-        for i, table in enumerate(tables):
-            csv_filename = f"{base_filename}_table_{i+1}.csv"
-            csv_path = os.path.join(output_dir, csv_filename)
+        
+        # If only one meaningful table, don't add table number suffix
+        if len(tables) == 1:
+            csv_filename = f"{base_filename}.csv"
+        else:
+            # Multiple tables, use numbered approach
+            for i, table in enumerate(tables):
+                csv_filename = f"{base_filename}_table_{i+1}.csv"
+                csv_path = os.path.join(output_dir, csv_filename)
+                
+                # Create DataFrame with proper formatting
+                df = CSVExporter._create_formatted_dataframe(table)
+                
+                # Save to CSV with proper encoding and formatting
+                df.to_csv(csv_path, index=False, encoding='utf-8-sig', 
+                         quoting=csv.QUOTE_MINIMAL)
+                csv_paths.append(csv_path)
             
-            # Get headers and rows
-            headers = table.get('headers', [])
-            rows = table.get('rows', [])
-            
-            # Create a DataFrame for easier manipulation
-            df = pd.DataFrame(rows)
-            
-            # If headers exist and match the number of columns, set them as column names
-            if headers and len(headers) == df.shape[1]:
-                df.columns = headers
-            
-            # Clean up empty or NaN values
-            df = df.fillna('')
-            
-            # Drop empty rows and columns
-            df = df.replace('', None)
-            df = df.dropna(how='all', axis=0)  # Drop rows that are all NaN
-            df = df.dropna(how='all', axis=1)  # Drop columns that are all NaN
-            df = df.fillna('')
-            
-            # Write to CSV
-            df.to_csv(csv_path, index=False)
-            csv_paths.append(csv_path)
-                    
+            return csv_paths
+        
+        # Single table case
+        csv_path = os.path.join(output_dir, csv_filename)
+        df = CSVExporter._create_formatted_dataframe(tables[0])
+        df.to_csv(csv_path, index=False, encoding='utf-8-sig', 
+                 quoting=csv.QUOTE_MINIMAL)
+        csv_paths.append(csv_path)
+        
         return csv_paths
+    
+    @staticmethod
+    def _create_formatted_dataframe(table: Dict) -> pd.DataFrame:
+        """
+        Create a well-formatted DataFrame from table data
+        
+        Args:
+            table: Table dictionary
+            
+        Returns:
+            Formatted pandas DataFrame
+        """
+        headers = table.get('headers', [])
+        rows = table.get('rows', [])
+        
+        if not rows:
+            return pd.DataFrame()
+        
+        # Create DataFrame
+        df = pd.DataFrame(rows)
+        
+        # Set proper column names
+        if headers and len(headers) == df.shape[1]:
+            df.columns = headers
+        else:
+            df.columns = [f"Column_{i+1}" for i in range(df.shape[1])]
+        
+        # Clean up the data
+        df = df.replace('', None)  # Convert empty strings to None
+        df = df.dropna(how='all', axis=0)  # Drop completely empty rows
+        df = df.dropna(how='all', axis=1)  # Drop completely empty columns
+        
+        # Clean individual cells
+        for col in df.columns:
+            df[col] = df[col].astype(str).str.strip()
+            # Convert 'nan' strings back to empty
+            df[col] = df[col].replace('nan', '')
+        
+        # Try to infer and convert data types
+        for col in df.columns:
+            # Try to convert to numeric if possible
+            numeric_series = pd.to_numeric(df[col], errors='coerce')
+            if not numeric_series.isna().all():
+                # If more than 50% of values are numeric, convert the column
+                numeric_ratio = numeric_series.notna().sum() / len(df)
+                if numeric_ratio > 0.5:
+                    df[col] = numeric_series
+        
+        return df
     
     @staticmethod
     def export_text_as_csv(text: str, output_dir: str, base_filename: str) -> str:

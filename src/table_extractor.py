@@ -329,7 +329,7 @@ class TableExtractor:
             cols = table['shape'][1] if 'shape' in table else 0
             
             # Skip tiny tables (less than 2x2)
-            if rows < 3 or cols < 2:
+            if rows < 2 or cols < 2:
                 print(f"Skipping tiny table: {rows}x{cols}")
                 continue
                 
@@ -339,24 +339,68 @@ class TableExtractor:
                 print(f"Skipping low accuracy table: {accuracy}")
                 continue
                 
-            # Skip tables that are mostly empty cells
-            if 'rows' in table:
-                empty_cells = 0
-                total_cells = 0
+            # Clean the table data first
+            cleaned_rows = []
+            for row in table.get('rows', []):
+                cleaned_row = []
+                for cell in row:
+                    cell_str = str(cell).strip() if cell is not None else ""
+                    cleaned_row.append(cell_str)
                 
-                for row in table['rows']:
-                    for cell in row:
-                        total_cells += 1
-                        if not cell or str(cell).strip() == '':
-                            empty_cells += 1
-                            
-                if total_cells > 0 and empty_cells / total_cells > 0.7:  # More than 70% empty
-                    print(f"Skipping mostly empty table: {empty_cells}/{total_cells} empty cells")
-                    continue
+                # Only include rows that aren't completely empty
+                if any(cell for cell in cleaned_row):
+                    cleaned_rows.append(cleaned_row)
+            
+            # Skip if no meaningful rows after cleaning
+            if len(cleaned_rows) < 2:
+                print(f"Skipping table with insufficient data rows: {len(cleaned_rows)}")
+                continue
+                
+            # Update table with cleaned data
+            table['rows'] = cleaned_rows
+            table['shape'] = (len(cleaned_rows), len(cleaned_rows[0]) if cleaned_rows else 0)
+            
+            # Check for mostly empty cells after cleaning
+            empty_cells = 0
+            total_cells = 0
+            
+            for row in cleaned_rows:
+                for cell in row:
+                    total_cells += 1
+                    if not cell:
+                        empty_cells += 1
+                        
+            if total_cells > 0 and empty_cells / total_cells > 0.6:  # More than 60% empty
+                print(f"Skipping mostly empty table: {empty_cells}/{total_cells} empty cells")
+                continue
+                
+            # Check for content diversity - avoid tables with too much repetition
+            unique_values = set()
+            for row in cleaned_rows:
+                for cell in row:
+                    if cell:
+                        unique_values.add(cell.lower().strip())
+            
+            # Need reasonable content diversity
+            if len(unique_values) < 3:
+                print(f"Skipping table with low content diversity: {len(unique_values)} unique values")
+                continue
+            
+            # Clean headers if they exist
+            headers = table.get('headers', [])
+            if headers:
+                cleaned_headers = [str(h).strip() if h is not None else f"Column {i+1}" 
+                                 for i, h in enumerate(headers)]
+                table['headers'] = cleaned_headers
+            else:
+                # Generate default headers if none exist
+                num_cols = table['shape'][1] if table['shape'][1] > 0 else len(cleaned_rows[0])
+                table['headers'] = [f"Column {i+1}" for i in range(num_cols)]
             
             # This table passes quality checks
             filtered_tables.append(table)
             
+        print(f"Filtered {len(tables)} tables down to {len(filtered_tables)} quality tables")
         return filtered_tables
     
     def save_tables_to_csv(self, tables: List[Dict], output_dir: str, base_filename: str) -> List[str]:
@@ -396,7 +440,7 @@ class TableExtractor:
     
     def get_table_html(self, table: Dict) -> str:
         """
-        Convert a table to HTML for display
+        Convert a table to HTML for display with improved formatting
         
         Args:
             table: Table dictionary from extract_tables
@@ -404,35 +448,76 @@ class TableExtractor:
         Returns:
             HTML representation of the table
         """
-        html = ['<table class="table table-bordered table-hover table-striped">']
+        html = ['<div class="table-responsive">']
+        html.append('<table class="table table-bordered table-hover table-striped table-sm">')
         
         # Headers
         headers = table.get('headers', [])
+        rows = table.get('rows', [])
+        
+        if not rows:
+            return '<div class="alert alert-warning">No data available for this table</div>'
+        
+        # Use first row as headers if no headers provided
+        if not headers and rows:
+            headers = [f"Column {i+1}" for i in range(len(rows[0]))]
+        
         if headers:
-            html.append('<thead class="table-light"><tr>')
+            html.append('<thead class="table-dark">')
+            html.append('<tr>')
             for header in headers:
-                header_text = str(header).strip()
-                html.append(f'<th class="text-center">{header_text}</th>')
-            html.append('</tr></thead>')
+                header_text = str(header).strip() or "Column"
+                html.append(f'<th class="text-center fw-bold">{header_text}</th>')
+            html.append('</tr>')
+            html.append('</thead>')
         
         # Body
-        rows = table.get('rows', [])
         if rows:
             html.append('<tbody>')
-            for row in rows:
-                html.append('<tr>')
-                for cell in row:
-                    cell_text = str(cell).strip()
-                    # Try to detect if it's numeric for right alignment
+            for i, row in enumerate(rows):
+                # Add alternating row colors
+                row_class = 'table-light' if i % 2 == 0 else ''
+                html.append(f'<tr class="{row_class}">')
+                
+                for j, cell in enumerate(row):
+                    cell_text = str(cell).strip() if cell is not None else ""
+                    
+                    # Smart formatting based on content
+                    cell_class = ""
+                    
+                    # Check if it's numeric
                     try:
-                        float(cell_text.replace(',', ''))
-                        html.append(f'<td class="text-end">{cell_text}</td>')
+                        # Try to parse as number
+                        num_val = float(cell_text.replace(',', '').replace('$', '').replace('%', ''))
+                        cell_class = "text-end fw-semibold"
+                        
+                        # Add currency/percentage formatting if detected
+                        if '$' in str(cell):
+                            cell_class += " text-success"
+                        elif '%' in str(cell):
+                            cell_class += " text-info"
+                            
                     except (ValueError, TypeError):
-                        html.append(f'<td>{cell_text}</td>')
+                        # Text content
+                        if cell_text.lower() in ['yes', 'true', 'active', 'enabled', 'pass']:
+                            cell_class = "text-success fw-semibold"
+                        elif cell_text.lower() in ['no', 'false', 'inactive', 'disabled', 'fail']:
+                            cell_class = "text-danger fw-semibold"
+                        elif len(cell_text) > 50:
+                            cell_class = "text-wrap"
+                        else:
+                            cell_class = "text-start"
+                    
+                    # Escape HTML characters
+                    cell_text = cell_text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+                    
+                    html.append(f'<td class="{cell_class}">{cell_text}</td>')
+                    
                 html.append('</tr>')
             html.append('</tbody>')
         
         html.append('</table>')
+        html.append('</div>')
         return ''.join(html)
 
 

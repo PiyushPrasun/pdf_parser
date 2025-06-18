@@ -22,7 +22,7 @@ class CSVConverter:
     @staticmethod
     def convert_pdf_to_csv(pdf_data: Dict, output_dir: str, base_filename: str) -> str:
         """
-        Convert PDF data to CSV format, handling both detected tables and raw text
+        Convert PDF data to CSV format, prioritizing quality tables
         
         Args:
             pdf_data: Dictionary containing extracted PDF data
@@ -35,72 +35,138 @@ class CSVConverter:
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
             
-        csv_filename = f"{base_filename}_data.csv"
+        csv_filename = f"{base_filename}_consolidated.csv"
         csv_path = os.path.join(output_dir, csv_filename)
         
-        # First try to extract tables if they exist
+        # First try to extract meaningful tables
         if 'tables' in pdf_data and pdf_data['tables']:
-            # Each table will be converted to its own DataFrame
-            data_frames = []
+            # Filter tables by quality
+            quality_tables = []
             
-            for table in pdf_data['tables']:
-                # Skip very small tables that may be just noise
+            for i, table in enumerate(pdf_data['tables']):
                 rows = table.get('rows', [])
-                if len(rows) < 2 or (len(rows) > 0 and len(rows[0]) < 2):
-                    continue
+                shape = table.get('shape', (0, 0))
+                accuracy = table.get('accuracy', 1.0)
                 
-                # Try to extract headers
-                table_headers = table.get('headers', [])
-                if not table_headers and rows:
-                    table_headers = rows[0]
-                    rows = rows[1:]
+                # Quality checks
+                if (shape[0] >= 3 and shape[1] >= 2 and  # Minimum size
+                    (accuracy is not None and accuracy >= 0.4) and  # Minimum accuracy
+                    len(rows) >= 3):  # Minimum rows
                     
-                # Make sure we have valid headers
-                if not table_headers:
-                    table_headers = [f"Column_{i+1}" for i in range(max(len(row) for row in rows))]
+                    # Check content diversity
+                    unique_values = set()
+                    non_empty_cells = 0
+                    total_cells = 0
                     
-                # Create a DataFrame for this table
-                df = pd.DataFrame(rows)
-                
-                # Only add tables that have actual data
-                if not df.empty and df.size > 4:  # More than just a 2x2 table
-                    # Set the column names
-                    if len(df.columns) == len(table_headers):
-                        df.columns = table_headers
-                    else:
-                        # Adjust headers if lengths don't match
-                        df.columns = table_headers[:len(df.columns)] if len(table_headers) > len(df.columns) else (
-                            table_headers + [f"Column_{i+1}" for i in range(len(df.columns) - len(table_headers))]
-                        )
+                    for row in rows:
+                        for cell in row:
+                            total_cells += 1
+                            cell_str = str(cell).strip() if cell else ""
+                            if cell_str:
+                                non_empty_cells += 1
+                                unique_values.add(cell_str.lower())
                     
-                    # Clean the data - replace NaN with empty string
-                    df = df.fillna('')
-                    
-                    # Add to our list of DataFrames
-                    data_frames.append(df)
+                    # Must have good content ratio and diversity
+                    content_ratio = non_empty_cells / total_cells if total_cells > 0 else 0
+                    if content_ratio >= 0.4 and len(unique_values) >= 4:
+                        quality_tables.append((i, table, len(unique_values), content_ratio))
             
-            # If we have DataFrames, combine them into one
-            if data_frames:
-                # Choose the best DataFrame (the one with the most cells) as the primary one
-                best_df = max(data_frames, key=lambda df: df.size)
+            if quality_tables:
+                # Sort by content quality (diversity and content ratio)
+                quality_tables.sort(key=lambda x: (x[2], x[3]), reverse=True)
                 
-                # Write to CSV
-                best_df.to_csv(csv_path, index=False)
-                return csv_path
+                # Use the best table
+                best_table = quality_tables[0][1]
+                df = CSVConverter._create_dataframe_from_table(best_table)
+                
+                if not df.empty:
+                    df.to_csv(csv_path, index=False, encoding='utf-8-sig')
+                    return csv_path
         
-        # If no tables were found, try to convert the raw text to a table format
+        # Fallback: try to convert text to structured format
         if 'text' in pdf_data and pdf_data['text']:
             return CSVConverter.text_to_table(pdf_data['text'], output_dir, base_filename)
             
-        # Fallback to empty CSV with just the metadata
-        with open(csv_path, 'w', newline='') as f:
+        # Final fallback: create metadata CSV
+        return CSVConverter._create_metadata_csv(pdf_data, csv_path)
+    
+    @staticmethod
+    def _create_dataframe_from_table(table: Dict) -> pd.DataFrame:
+        """
+        Create a well-formatted DataFrame from a table
+        """
+        headers = table.get('headers', [])
+        rows = table.get('rows', [])
+        
+        if not rows:
+            return pd.DataFrame()
+        
+        # Clean the data first
+        cleaned_rows = []
+        for row in rows:
+            cleaned_row = [str(cell).strip() if cell is not None else "" for cell in row]
+            # Only include rows with some content
+            if any(cell for cell in cleaned_row):
+                cleaned_rows.append(cleaned_row)
+        
+        if not cleaned_rows:
+            return pd.DataFrame()
+        
+        # Create DataFrame
+        df = pd.DataFrame(cleaned_rows)
+        
+        # Set proper headers
+        max_cols = df.shape[1]
+        if headers and len(headers) >= max_cols:
+            df.columns = headers[:max_cols]
+        else:
+            # Generate meaningful column names
+            df.columns = [f"Column_{i+1}" for i in range(max_cols)]
+        
+        # Clean up the DataFrame
+        df = df.replace('', pd.NA)
+        df = df.dropna(how='all', axis=0)  # Remove empty rows
+        df = df.dropna(how='all', axis=1)  # Remove empty columns
+        df = df.fillna('')  # Fill remaining NaN with empty string
+        
+        # Try to convert numeric columns
+        for col in df.columns:
+            if df[col].dtype == 'object':
+                # Try numeric conversion
+                numeric_series = pd.to_numeric(df[col], errors='coerce')
+                if not numeric_series.isna().all():
+                    numeric_ratio = numeric_series.notna().sum() / len(df)
+                    if numeric_ratio > 0.7:  # If more than 70% are numeric
+                        df[col] = numeric_series.fillna('')
+        
+        return df
+    
+    @staticmethod
+    def _create_metadata_csv(pdf_data: Dict, csv_path: str) -> str:
+        """
+        Create a CSV with metadata when no tables are available
+        """
+        with open(csv_path, 'w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
-            writer.writerow(["Metadata_Key", "Metadata_Value"])
+            writer.writerow(["Property", "Value"])
             
+            # Add metadata if available
             if 'metadata' in pdf_data and pdf_data['metadata']:
                 for key, value in pdf_data['metadata'].items():
-                    writer.writerow([key, value])
-                    
+                    writer.writerow([key, str(value)])
+            
+            # Add basic text statistics
+            if 'text' in pdf_data and pdf_data['text']:
+                text = pdf_data['text']
+                writer.writerow(["Text_Length", len(text)])
+                writer.writerow(["Word_Count", len(text.split())])
+                writer.writerow(["Line_Count", len(text.splitlines())])
+                
+                # Add metadata if available
+                if 'metadata' in pdf_data:
+                    for key, value in pdf_data['metadata'].items():
+                        writer.writerow([key, value])
+        
         return csv_path
     
     @staticmethod
